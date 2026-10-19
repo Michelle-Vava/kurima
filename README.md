@@ -4,6 +4,13 @@
 
 *Kurima* means "farming" in Shona.
 
+**▶ Live demo: [kurima-six.vercel.app](https://kurima-six.vercel.app)** (no sign-up; pick a town)
+
+<p align="center">
+  <img src="docs/screenshot-desktop.png" width="62%" alt="Kurima on desktop: Kisumu, Kenya, showing a 'Wait a little' signal, rain chart, season outlook and monthly normals"/>
+  <img src="docs/screenshot-mobile.png" width="30%" alt="Kurima on a phone: Kano, Nigeria, showing 'Too dry to plant' in the dry season"/>
+</p>
+
 Rainy seasons across Africa are getting harder to read: rains start late, false starts tempt farmers to plant too early, and long dry spells kill seedlings. Seasonal outlooks exist, but they rarely reach farmers in a form they can act on for their own village.
 
 Kurima turns free satellite and weather-model data into plain guidance for one location:

@@ -22,6 +22,8 @@ Known issues found in review:
 - [ ] **Stale cached weather looks current.** The service worker allows responses up to 7 days old. Show the data's age, and hide the recommendation when it's too old.
 - [ ] **Labels:** past-day rainfall is modelled (archived forecasts), not rain-gauge observations. Say "modelled" everywhere.
 - [ ] **Calibrate the season outlook.** Compare seasonal-model totals against the model's own historical runs (Open-Meteo's seasonal data is unadjusted), not against ERA5, before showing percentages.
+- [ ] **Hide the outlook in the dry season.** When the historical normal for the window is ~0 mm (e.g. Kano, Nov–Jan), the terciles are meaningless but still show percentages. Show "dry season, no outlook" instead.
+- [ ] Copy fixes: "1 days" → "1 day"; chart legend "observed" → "modelled"
 - [ ] **Validate the onset rule** against past seasons in the pilot districts: how often would "plant" have been followed by a damaging dry spell?
 - [ ] Maize crop guide for the pilot districts, reviewed against AREX / ministry advice
 
