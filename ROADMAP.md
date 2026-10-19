@@ -12,6 +12,19 @@ Kurima helps farmers across Africa make better decisions through the season: whe
 - [x] Installable PWA with offline caching of recent weather
 - [x] Unit tests for the signal and climate maths
 
+## Milestone 1: Make the core signal trustworthy
+Focus: **rain-fed maize in selected Zimbabwean districts** first. The Africa-wide search stays, but the rules get tested somewhere specific before they're trusted everywhere.
+
+Known issues found in review:
+- [ ] **Today counts as "already fallen".** `App.tsx` puts today's full-day total into recent rain, but it includes rain still forecast for later today. Use completed days only.
+- [ ] **No forecast reads as "no dry spell".** An empty or short forecast currently gives "Good time to plant". Add an "insufficient data" state, and require a minimum forecast length.
+- [ ] **Partial seasons leak into the baseline.** `seasonTotalsByYear` keeps a Nov–Jan "1990 season" that only has January (history starts 1 Jan 1991), pulling the normal range down. Keep complete seasons only, and add a test for it.
+- [ ] **Stale cached weather looks current.** The service worker allows responses up to 7 days old. Show the data's age, and hide the recommendation when it's too old.
+- [ ] **Labels:** past-day rainfall is modelled (archived forecasts), not rain-gauge observations. Say "modelled" everywhere.
+- [ ] **Calibrate the season outlook.** Compare seasonal-model totals against the model's own historical runs (Open-Meteo's seasonal data is unadjusted), not against ERA5, before showing percentages.
+- [ ] **Validate the onset rule** against past seasons in the pilot districts: how often would "plant" have been followed by a damaging dry spell?
+- [ ] Maize crop guide for the pilot districts, reviewed against AREX / ministry advice
+
 ## Phase 1: Better season intelligence
 *Why:* false starts and late onsets are the main planting risk. In 2026 Zimbabwe's Met service put the chance of below-normal rain for Oct 2026–Mar 2027 at 65%, and farmers were warned not to plant on the first storms ([FEWS NET](https://fews.net/southern-africa/zimbabwe/key-message-update/september-2026/print)).
 - [ ] **Bimodal seasons**: detect one or two rainy seasons per location (e.g. East Africa's long and short rains) from the normals, and judge onset per season

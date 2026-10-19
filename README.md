@@ -11,13 +11,13 @@ Kurima turns free satellite and weather-model data into plain guidance for one l
 | | What you see | Data |
 |---|---|---|
 | 🌱 **Plant-or-wait signal** | Plant, wait or too dry, with the reasons, based on recent rain, the 16-day forecast and dry spells ahead | Open-Meteo forecast |
-| 🌧️ **Rain: last 2 weeks + next 16 days** | Daily bars, observed vs forecast, soil moisture | Open-Meteo forecast |
-| 📅 **Season outlook (next 3 months)** | Chance of a drier, normal or wetter season than usual | ECMWF seasonal ensemble (51 runs) vs 1991–2020 history |
+| 🌧️ **Rain: last 2 weeks + next 16 days** | Daily bars, recent (modelled) vs forecast, soil moisture | Open-Meteo forecast (past days are archived model data, not rain gauges) |
+| 📅 **Season outlook (next 3 months)** | Rough chance of a drier, normal or wetter season than usual (not yet calibrated) | ECMWF seasonal ensemble (51 runs) vs 1991–2020 history |
 | 📊 **Normal rainfall here** | Average rain for every month, wettest month, length of the rainy season | ERA5 reanalysis, 1991–2020 |
 
 **Who it's for:** smallholder farmers, extension officers and farmer groups who want a quick, local read on the season.
 
-**Status:** early web app (installable PWA). The core signal and climate maths are tested; crop guidance, markets, storage and languages are next. See [ROADMAP.md](ROADMAP.md).
+**Status:** early prototype (installable PWA). The core signal and climate maths have unit tests, but a review found accuracy issues to fix before anyone relies on it, and the first milestone narrows to rain-fed maize in selected Zimbabwean districts. See [ROADMAP.md](ROADMAP.md).
 
 ---
 
