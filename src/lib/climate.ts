@@ -30,9 +30,16 @@ export function monthlyNormals(series: DailySeries): number[] {
  * Total rain in each past year for the same calendar window as `months`
  * (e.g. [11, 12, 1] for Nov–Jan). Windows that cross New Year are counted
  * against the year they start in.
+ *
+ * Only complete seasons are returned: every month of the window must lie
+ * inside the record. A record starting 1 Jan 1991 therefore does not produce
+ * a "1990" Nov–Jan season made of January alone, which would drag the normal
+ * range down.
  */
 export function seasonTotalsByYear(series: DailySeries, months: number[]): number[] {
+  if (series.time.length === 0 || months.length === 0) return []
   const first = months[0]
+  const last = months[months.length - 1]
   const byYear = new Map<number, number>()
   series.time.forEach((date, i) => {
     const v = series.values[i]
@@ -44,21 +51,38 @@ export function seasonTotalsByYear(series: DailySeries, months: number[]): numbe
     byYear.set(seasonYear, (byYear.get(seasonYear) ?? 0) + v)
   })
 
-  // Drop incomplete seasons at either end of the record.
-  const years = [...byYear.keys()].sort((a, b) => a - b)
-  const startYear = Number(series.time[0]?.slice(0, 4))
-  const startMonth = Number(series.time[0]?.slice(5, 7))
-  return years
-    .filter((y) => !(y === startYear && startMonth > first))
-    .filter((y) => y !== years[years.length - 1] || isComplete(series, y, months))
+  const recordStart = series.time[0]
+  const recordEnd = series.time[series.time.length - 1]
+  return [...byYear.keys()]
+    .sort((a, b) => a - b)
+    .filter((y) => {
+      const endYear = last < first ? y + 1 : y
+      const seasonStart = `${y}-${pad2(first)}-01`
+      const seasonEnd = `${endYear}-${pad2(last)}-${pad2(daysInMonth(endYear, last))}`
+      return seasonStart >= recordStart && seasonEnd <= recordEnd
+    })
     .map((y) => byYear.get(y)!)
 }
 
-function isComplete(series: DailySeries, seasonYear: number, months: number[]): boolean {
-  const last = months[months.length - 1]
-  const endYear = last < months[0] ? seasonYear + 1 : seasonYear
-  const lastDate = series.time[series.time.length - 1]
-  return lastDate >= `${endYear}-${String(last).padStart(2, '0')}-28`
+function pad2(n: number): string {
+  return String(n).padStart(2, '0')
+}
+
+/** Days in a calendar month (1–12). */
+function daysInMonth(year: number, month: number): number {
+  return new Date(Date.UTC(year, month, 0)).getUTCDate()
+}
+
+/**
+ * Below this historical median (mm over the whole window) the window is the
+ * dry season: the terciles are a few millimetres apart and a below / near /
+ * above split means nothing.
+ */
+export const DRY_SEASON_WINDOW_MM = 10
+
+export function isDrySeasonWindow(historicalTotals: number[]): boolean {
+  if (historicalTotals.length === 0) return false
+  return percentile(historicalTotals, 0.5) < DRY_SEASON_WINDOW_MM
 }
 
 /** Value below which `p` (0–1) of the sorted data falls, with linear interpolation. */

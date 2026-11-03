@@ -27,7 +27,8 @@ export const DEFAULT_RULE: OnsetRule = {
   offSeasonMonthlyMm: 30,
 }
 
-export type Signal = 'plant' | 'wait' | 'dry'
+/** `unknown` means there isn't enough data to give an answer. */
+export type Signal = 'plant' | 'wait' | 'dry' | 'unknown'
 
 export interface SignalResult {
   signal: Signal
@@ -66,9 +67,25 @@ export function longestDrySpell(values: number[], dryDayMm: number): number {
 }
 
 /**
- * @param recent  Daily rain for the last few days, oldest first, ending today (mm).
- * @param forecast Daily forecast rain starting tomorrow (mm).
+ * Split a daily series into completed days and days still to come.
+ *
+ * Today's daily total is a forecast until the day ends (it includes rain
+ * expected later today), so today belongs with the forecast, not with the
+ * rain that has already fallen.
+ */
+export function splitAtToday(rain: number[], todayIndex: number): { recent: number[]; forecast: number[] } {
+  const i = Math.max(0, Math.min(todayIndex, rain.length))
+  return { recent: rain.slice(0, i), forecast: rain.slice(i) }
+}
+
+/**
+ * @param recent  Daily rain for completed days, oldest first, ending yesterday (mm).
+ * @param forecast Daily forecast rain starting today (mm).
  * @param monthNormalMm Long-term average rain for the current month, if known (mm).
+ *
+ * Returns `unknown` when there is too little data to judge: fewer completed
+ * days than the onset window, or a forecast too short to rule out a dry spell
+ * of `drySpellDays`. An empty forecast must never read as "no dry spell".
  */
 export function evaluateSignal(
   recent: number[],
@@ -76,6 +93,19 @@ export function evaluateSignal(
   monthNormalMm: number | null,
   rule: OnsetRule = DEFAULT_RULE,
 ): SignalResult {
+  const missing: string[] = []
+  if (recent.length < rule.wetDays) {
+    missing.push(`Only ${recent.length} completed ${plural(recent.length, 'day')} of recent rain; ${rule.wetDays} are needed.`)
+  }
+  if (forecast.length < rule.drySpellDays) {
+    missing.push(
+      `Only ${forecast.length} ${plural(forecast.length, 'day')} of forecast; at least ${rule.drySpellDays} are needed to check for a dry spell.`,
+    )
+  }
+  if (missing.length > 0) {
+    return { signal: 'unknown', recentWetMm: 0, forecastWetMm: 0, forecastDrySpell: 0, reasons: missing }
+  }
+
   const recentWetMm = maxRollingSum(recent.slice(-rule.wetDays * 2), rule.wetDays)
   const forecastWetMm = maxRollingSum(forecast, rule.wetDays)
   const forecastDrySpell = longestDrySpell(forecast, rule.dryDayMm)
@@ -97,7 +127,7 @@ export function evaluateSignal(
   }
 
   if (drySpellAhead) {
-    reasons.push(`The forecast shows ${forecastDrySpell} dry days in a row, which could stress new seedlings.`)
+    reasons.push(`The forecast shows ${forecastDrySpell} dry ${plural(forecastDrySpell, 'day')} in a row, which could stress new seedlings.`)
   }
 
   if (!wetEnough && rainComing) {
@@ -110,6 +140,11 @@ export function evaluateSignal(
   else signal = 'dry'
 
   return { signal, recentWetMm, forecastWetMm, forecastDrySpell, reasons }
+}
+
+/** "1 day", "2 days". */
+export function plural(n: number, word: string): string {
+  return n === 1 ? word : `${word}s`
 }
 
 function round1(n: number): number {

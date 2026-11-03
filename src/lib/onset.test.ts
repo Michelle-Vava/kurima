@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_RULE, evaluateSignal, longestDrySpell, maxRollingSum } from './onset'
+import { DEFAULT_RULE, evaluateSignal, longestDrySpell, maxRollingSum, plural, splitAtToday } from './onset'
 
 describe('maxRollingSum', () => {
   it('finds the wettest window', () => {
@@ -59,5 +59,59 @@ describe('evaluateSignal', () => {
     const strict = { ...DEFAULT_RULE, wetMm: 30, wetDays: 7 } // the week only had 25 mm
     expect(evaluateSignal(wetWeek, showers, 120).signal).toBe('plant')
     expect(evaluateSignal(wetWeek, showers, 120, strict).signal).toBe('dry')
+  })
+})
+
+describe('splitAtToday', () => {
+  it("puts today with the forecast, since today's total includes rain still to come", () => {
+    const rain = [1, 2, 3, 40, 5, 6]
+    const { recent, forecast } = splitAtToday(rain, 3)
+    expect(recent).toEqual([1, 2, 3])
+    expect(forecast).toEqual([40, 5, 6])
+  })
+  it('copes with an index outside the series', () => {
+    expect(splitAtToday([1, 2], 5)).toEqual({ recent: [1, 2], forecast: [] })
+    expect(splitAtToday([1, 2], -1)).toEqual({ recent: [], forecast: [1, 2] })
+  })
+})
+
+describe('evaluateSignal with too little data', () => {
+  const wetWeek = [0, 0, 0, 2, 9, 8, 6]
+
+  it('never says plant on an empty forecast', () => {
+    const r = evaluateSignal(wetWeek, [], 120)
+    expect(r.signal).toBe('unknown')
+    expect(r.reasons.join(' ')).toContain('0 days of forecast')
+  })
+
+  it('needs a forecast at least as long as the dry spell it checks for', () => {
+    const sixDays = [3, 3, 3, 3, 3, 3]
+    expect(evaluateSignal(wetWeek, sixDays, 120).signal).toBe('unknown')
+    expect(evaluateSignal(wetWeek, [...sixDays, 3], 120).signal).toBe('plant')
+    const shortRule = { ...DEFAULT_RULE, drySpellDays: 5 }
+    expect(evaluateSignal(wetWeek, sixDays, 120, shortRule).signal).toBe('plant')
+  })
+
+  it('needs at least the onset window of completed days', () => {
+    const r = evaluateSignal([12, 12], [3, 3, 3, 3, 3, 3, 3], 120)
+    expect(r.signal).toBe('unknown')
+    expect(r.reasons[0]).toContain('2 completed days')
+  })
+
+  it('reports every missing input at once', () => {
+    expect(evaluateSignal([], [], 120).reasons).toHaveLength(2)
+  })
+})
+
+describe('plural', () => {
+  it('handles one and many', () => {
+    expect(plural(1, 'day')).toBe('day')
+    expect(plural(0, 'day')).toBe('days')
+    expect(plural(7, 'day')).toBe('days')
+  })
+  it('is used in the dry-spell reason', () => {
+    const oneDryDay = [5, 5, 5, 0, 5, 5, 5]
+    const r = evaluateSignal([0, 0, 0, 2, 9, 8, 6], oneDryDay, 120, { ...DEFAULT_RULE, drySpellDays: 1 })
+    expect(r.reasons.join(' ')).toContain('1 dry day in a row')
   })
 })

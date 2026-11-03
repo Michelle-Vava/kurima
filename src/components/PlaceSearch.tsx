@@ -18,7 +18,6 @@ export function PlaceSearch({ onSelect }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Place[]>([])
   const [open, setOpen] = useState(false)
-  const [locating, setLocating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const boxRef = useRef<HTMLDivElement>(null)
 
@@ -60,32 +59,6 @@ export function PlaceSearch({ onSelect }: Props) {
     onSelect(p)
   }
 
-  function useMyLocation() {
-    if (!navigator.geolocation) {
-      setError('Your browser cannot share a location.')
-      return
-    }
-    setLocating(true)
-    setError(null)
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLocating(false)
-        choose({
-          name: 'My location',
-          country: '',
-          countryCode: '',
-          latitude: Math.round(pos.coords.latitude * 100) / 100,
-          longitude: Math.round(pos.coords.longitude * 100) / 100,
-        })
-      },
-      () => {
-        setLocating(false)
-        setError('Location was not shared. Search for your town instead.')
-      },
-      { timeout: 10000 },
-    )
-  }
-
   return (
     <div className="search" ref={boxRef}>
       <div className="search-row">
@@ -97,9 +70,6 @@ export function PlaceSearch({ onSelect }: Props) {
           placeholder="Search a town or village in Africa"
           aria-label="Search a town or village"
         />
-        <button className="ghost" onClick={useMyLocation} disabled={locating}>
-          {locating ? 'Locating…' : '📍 Use my location'}
-        </button>
       </div>
 
       {open && results.length > 0 && (
@@ -126,7 +96,10 @@ export function PlaceSearch({ onSelect }: Props) {
           </button>
         ))}
       </div>
-      <p className="privacy">Your location is only used to fetch weather. Nothing is stored or shared.</p>
+      <p className="privacy">
+        Kurima only uses the town you pick to fetch weather. It never asks for your device's location, and nothing is
+        stored or shared.
+      </p>
     </div>
   )
 }

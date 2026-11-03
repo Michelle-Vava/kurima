@@ -203,3 +203,10 @@ main { display: grid; gap: 16px; }
 
 footer { margin-top: 28px; font-size: 13px; color: var(--muted); line-height: 1.5; text-align: center; }
 footer p { margin: 4px 0; }
+
+/* added in Milestone 1 Phase 1 */
+.signal-unknown { border-color: var(--line); }
+.signal-unknown h2 { color: var(--muted); }
+.card.stale { border: 2px solid var(--maize); }
+.card.stale h3 { margin-top: 0; }
+.data-age { margin-top: 14px; }

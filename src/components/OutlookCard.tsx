@@ -2,6 +2,10 @@ import type { Outlook } from '../lib/climate'
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+function windowLabel(months: number[]): string {
+  return `${MONTHS[months[0] - 1]}–${MONTHS[months[months.length - 1] - 1]}`
+}
+
 interface Props {
   outlook: Outlook
   months: number[]
@@ -9,13 +13,13 @@ interface Props {
 }
 
 export function OutlookCard({ outlook, months, memberCount }: Props) {
-  const label = `${MONTHS[months[0] - 1]}–${MONTHS[months[months.length - 1] - 1]}`
+  const label = windowLabel(months)
   const pct = (p: number) => Math.round(p * 100)
   const leaning =
     outlook.below > 0.45 ? 'drier than normal' : outlook.above > 0.45 ? 'wetter than normal' : 'close to normal'
 
   return (
-    <section className="card">
+    <section className="card" data-testid="outlook">
       <h3>Season outlook: {label}</h3>
       <p className="sub">
         Leaning <strong>{leaning}</strong>. Normal for these months is about {outlook.normalMm} mm; the forecast
@@ -34,6 +38,25 @@ export function OutlookCard({ outlook, months, memberCount }: Props) {
       <p className="fine">
         Based on {memberCount} runs of the ECMWF seasonal model compared with 1991–2020 rainfall here. Not yet
         bias-corrected, so use it as a rough guide alongside your national weather service.
+      </p>
+    </section>
+  )
+}
+
+interface DryProps {
+  months: number[]
+  /** Historical median rain over the window (mm). */
+  normalMm: number
+}
+
+/** Shown instead of the outlook when the window is the dry season here. */
+export function DrySeasonCard({ months, normalMm }: DryProps) {
+  return (
+    <section className="card" data-testid="outlook-dry">
+      <h3>Season outlook: {windowLabel(months)}</h3>
+      <p className="sub">
+        <strong>Dry season here.</strong> These months normally get about {normalMm} mm in total, so there is no
+        rainy-season outlook to show. Check back as the rains approach.
       </p>
     </section>
   )

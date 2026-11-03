@@ -1,12 +1,22 @@
 import { useEffect, useMemo, useState } from 'react'
 import { NormalsChart } from './components/NormalsChart'
-import { OutlookCard } from './components/OutlookCard'
+import { DrySeasonCard, OutlookCard } from './components/OutlookCard'
 import { PlaceSearch } from './components/PlaceSearch'
 import { RainChart } from './components/RainChart'
 import { RuleSettings } from './components/RuleSettings'
 import { SignalCard } from './components/SignalCard'
-import { monthlyNormals, nextMonths, seasonTotalsByYear, tercileOutlook, type DailySeries } from './lib/climate'
-import { DEFAULT_RULE, evaluateSignal, type OnsetRule } from './lib/onset'
+import {
+  isDrySeasonWindow,
+  monthlyNormals,
+  nextMonths,
+  percentile,
+  seasonTotalsByYear,
+  tercileOutlook,
+  type DailySeries,
+  type Outlook,
+} from './lib/climate'
+import { MAX_WEATHER_AGE_DAYS, ageInDays } from './lib/freshness'
+import { DEFAULT_RULE, evaluateSignal, plural, splitAtToday, type OnsetRule } from './lib/onset'
 import {
   fetchHistory,
   fetchSeasonal,
@@ -38,6 +48,8 @@ function useLoad<T>(place: Place | null, fn: (lat: number, lon: number, s: Abort
 
 const OUTLOOK_MONTHS = 3
 
+type SeasonView = { kind: 'outlook'; outlook: Outlook } | { kind: 'dry'; normalMm: number } | null
+
 export default function App() {
   const [place, setPlace] = useState<Place | null>(null)
   const [rule, setRule] = useState<OnsetRule>(DEFAULT_RULE)
@@ -49,22 +61,27 @@ export default function App() {
   const now = new Date()
   const normals = useMemo(() => (history.status === 'ok' ? monthlyNormals(history.data) : null), [history])
 
+  // A cached forecast is fine for a day; after that the "today" it was built
+  // around is wrong and the recommendation is hidden.
+  const weatherAge = weather.status === 'ok' ? ageInDays(weather.data.issued, now) : 0
+  const tooOld = weatherAge >= MAX_WEATHER_AGE_DAYS
+
   const signal = useMemo(() => {
     if (weather.status !== 'ok') return null
-    const w = weather.data
-    const recent = w.rain.slice(0, w.todayIndex + 1)
-    const forecast = w.rain.slice(w.todayIndex + 1)
+    const { recent, forecast } = splitAtToday(weather.data.rain, weather.data.todayIndex)
     return evaluateSignal(recent, forecast, normals ? normals[now.getMonth()] : null, rule)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weather, normals, rule])
 
   const outlookMonths = useMemo(() => nextMonths(now, OUTLOOK_MONTHS), []) // eslint-disable-line react-hooks/exhaustive-deps
-  const outlook = useMemo(() => {
+  const season = useMemo<SeasonView>(() => {
     if (history.status !== 'ok' || seasonal.status !== 'ok') return null
     const past = seasonTotalsByYear(history.data, outlookMonths)
+    if (past.length < 10) return null
+    if (isDrySeasonWindow(past)) return { kind: 'dry', normalMm: Math.round(percentile(past, 0.5)) }
     const members = memberTotals(seasonal.data, outlookMonths)
-    if (past.length < 10 || members.length === 0) return null
-    return tercileOutlook(past, members)
+    if (members.length === 0) return null
+    return { kind: 'outlook', outlook: tercileOutlook(past, members) }
   }, [history, seasonal, outlookMonths])
 
   return (
@@ -86,8 +103,8 @@ export default function App() {
           <section className="card intro">
             <h2>Should I plant yet?</h2>
             <p>
-              Pick your town to see recent and forecast rain, a plant-or-wait signal, how the coming season compares
-              with normal, and what rainfall is usual here, all from free satellite and weather-model data.
+              Pick your town to see recent (modelled) and forecast rain, a plant-or-wait signal, how the coming season
+              compares with normal, and what rainfall is usual here, all from free satellite and weather-model data.
             </p>
           </section>
         )}
@@ -104,9 +121,24 @@ export default function App() {
 
             {weather.status === 'loading' && <div className="card skeleton">Checking the rain…</div>}
             {weather.status === 'error' && <div className="card error">{weather.message}</div>}
-            {weather.status === 'ok' && signal && (
+            {weather.status === 'ok' && tooOld && (
+              <section className="card stale" data-testid="stale">
+                <h3>This forecast is {weatherAge} {plural(weatherAge, 'day')} old</h3>
+                <p className="sub">
+                  It was issued for {weather.data.issued} and the app could not fetch a newer one. Kurima does not give
+                  planting advice on a forecast more than {MAX_WEATHER_AGE_DAYS - 1}{' '}
+                  {plural(MAX_WEATHER_AGE_DAYS - 1, 'day')} old. Connect to the internet and reopen the app to refresh.
+                </p>
+              </section>
+            )}
+            {weather.status === 'ok' && !tooOld && signal && (
               <>
-                <SignalCard result={signal} soilMoisture={weather.data.soilMoisture} />
+                <SignalCard
+                  result={signal}
+                  soilMoisture={weather.data.soilMoisture}
+                  issued={weather.data.issued}
+                  ageDays={weatherAge}
+                />
                 <RainChart dates={weather.data.dates} rain={weather.data.rain} todayIndex={weather.data.todayIndex} />
               </>
             )}
@@ -116,9 +148,10 @@ export default function App() {
             {(history.status === 'loading' || seasonal.status === 'loading') && (
               <div className="card skeleton">Comparing with 30 years of history…</div>
             )}
-            {outlook && seasonal.status === 'ok' && (
-              <OutlookCard outlook={outlook} months={outlookMonths} memberCount={seasonal.data.members.length} />
+            {season?.kind === 'outlook' && seasonal.status === 'ok' && (
+              <OutlookCard outlook={season.outlook} months={outlookMonths} memberCount={seasonal.data.members.length} />
             )}
+            {season?.kind === 'dry' && <DrySeasonCard months={outlookMonths} normalMm={season.normalMm} />}
             {seasonal.status === 'error' && <div className="card error">Season outlook unavailable: {seasonal.message}</div>}
 
             {normals && <NormalsChart normals={normals} currentMonth={now.getMonth()} />}

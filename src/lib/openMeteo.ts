@@ -46,6 +46,8 @@ export interface Weather {
   timezone: string
   /** Index of today in `rain` / `dates`. */
   todayIndex: number
+  /** The date (YYYY-MM-DD, local to the place) the forecast was issued for: its "today". */
+  issued: string
   dates: string[]
   rain: number[]
   tempMax: number[]
@@ -74,10 +76,13 @@ export async function fetchWeather(lat: number, lon: number, signal?: AbortSigna
     }
   }
 
+  const dates: string[] = d.daily.time
+  const todayIndex = Math.min(14, Math.max(0, dates.length - 1))
   return {
     timezone: d.timezone,
-    todayIndex: 14,
-    dates: d.daily.time,
+    todayIndex,
+    issued: dates[todayIndex] ?? '',
+    dates,
     rain: (d.daily.precipitation_sum as (number | null)[]).map((v) => v ?? 0),
     tempMax: d.daily.temperature_2m_max,
     tempMin: d.daily.temperature_2m_min,
