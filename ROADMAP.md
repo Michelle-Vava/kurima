@@ -5,8 +5,8 @@ Kurima helps farmers across Africa make better decisions through the season: whe
 ## Status at a glance
 
 ```
-  Milestone 1  Weather and planting   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/36   + 9 already built   NEXT
-    ├─ Phase 1  Trust the signal       ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/12   fixes, no location, Playwright, CI
+  Milestone 1  Weather and planting   ██████████░░░░░░░░░░░░░░░░░░░░  12/36   + 9 already built   NEXT
+    ├─ Phase 1  Trust the signal       ██████████████████████████████  12/12   done 2 Nov 2026 (redeploy pending)
     ├─ Phase 2  Season smarts          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/13   calibrated outlook, season simulator
     ├─ Phase 3  Restructure            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/6    screens, data layer, units
     └─ Phase 4  More weather           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/5    heat stress, rain map, compare, replay
@@ -55,22 +55,26 @@ Each block of the bar is about 3% of that row. Update the counts when items are 
 - [x] **8.** Unit tests for the signal and climate maths
 - [x] **9.** Deployed to Vercel
 
-## Phase 1: Trust the signal (0/12)
+## Phase 1: Trust the signal (12/12)
 Focus: **rain-fed maize in selected Zimbabwean districts** first. The Africa-wide search stays, but the rules get tested somewhere specific before they're trusted everywhere.
-- [ ] **1.** **[UI]** **Remove device location.** Drop "Use my location"; farmers search or pick a town. Update the privacy note, README and screenshots.
-- [ ] **2.** **[Backend]** **Today counts as "already fallen".** `App.tsx` puts today's full-day total into recent rain, but it includes rain still forecast for later today. Use completed days only.
-- [ ] **3.** **[Backend + UI]** **No forecast reads as "no dry spell".** An empty or short forecast currently gives "Good time to plant". Add an "insufficient data" state, and require a minimum forecast length.
-- [ ] **4.** **[Backend]** **Partial seasons leak into the baseline.** `seasonTotalsByYear` keeps a Nov–Jan "1990 season" that only has January (history starts 1 Jan 1991), pulling the normal range down. Keep complete seasons only, and add a test for it.
-- [ ] **5.** **[Backend + UI]** **Stale cached weather looks current.** The service worker allows responses up to 7 days old. Show the data's age, and hide the recommendation when it's too old.
-- [ ] **6.** **[UI]** **Labels:** past-day rainfall is modelled (archived forecasts), not rain-gauge observations. Say "modelled" everywhere.
-- [ ] **7.** **[Backend + UI]** **Hide the outlook in the dry season.** When the historical normal for the window is ~0 mm (e.g. Kano, Nov–Jan), the terciles are meaningless but still show percentages. Show "dry season, no outlook" instead.
-- [ ] **8.** **[UI]** Copy fixes: "1 days" → "1 day"; chart legend "observed" → "modelled"
-- [ ] **9.** **[Test]** Vitest unit test for each fix that changes behaviour (today's rain, missing forecast, partial seasons, stale data, dry-season outlook)
-- [ ] **10.** **[Test]** Set up Playwright, with a first end-to-end test: pick a sample town and see a plant/wait answer, with the weather service faked so the test doesn't depend on live data
-- [ ] **11.** **[Test]** End-to-end tests for "not enough data" and "data too old"
-- [ ] **12.** **[Backend]** GitHub Actions CI: type-check, lint, unit tests, Playwright tests, build
+- [x] **1.** **[UI]** **Remove device location.** Drop "Use my location"; farmers search or pick a town. Update the privacy note, README and screenshots.
+- [x] **2.** **[Backend]** **Today counts as "already fallen".** `App.tsx` puts today's full-day total into recent rain, but it includes rain still forecast for later today. Use completed days only.
+- [x] **3.** **[Backend + UI]** **No forecast reads as "no dry spell".** An empty or short forecast currently gives "Good time to plant". Add an "insufficient data" state, and require a minimum forecast length.
+- [x] **4.** **[Backend]** **Partial seasons leak into the baseline.** `seasonTotalsByYear` keeps a Nov–Jan "1990 season" that only has January (history starts 1 Jan 1991), pulling the normal range down. Keep complete seasons only, and add a test for it.
+- [x] **5.** **[Backend + UI]** **Stale cached weather looks current.** The service worker allows responses up to 7 days old. Show the data's age, and hide the recommendation when it's too old.
+- [x] **6.** **[UI]** **Labels:** past-day rainfall is modelled (archived forecasts), not rain-gauge observations. Say "modelled" everywhere.
+- [x] **7.** **[Backend + UI]** **Hide the outlook in the dry season.** When the historical normal for the window is ~0 mm (e.g. Kano, Nov–Jan), the terciles are meaningless but still show percentages. Show "dry season, no outlook" instead.
+- [x] **8.** **[UI]** Copy fixes: "1 days" → "1 day"; chart legend "observed" → "modelled"
+- [x] **9.** **[Test]** Vitest unit test for each fix that changes behaviour (today's rain, missing forecast, partial seasons, stale data, dry-season outlook)
+- [x] **10.** **[Test]** Set up Playwright, with a first end-to-end test: pick a sample town and see a plant/wait answer, with the weather service faked so the test doesn't depend on live data
+- [x] **11.** **[Test]** End-to-end tests for "not enough data" and "data too old"
+- [x] **12.** **[Backend]** GitHub Actions CI: type-check, lint, unit tests, Playwright tests, build
 
 *Done when:* every fix above has a test where it changes behaviour, Playwright covers the main flow, CI is green, the README and screenshots match the app, and the live demo is redeployed.
+
+*Status (2 Nov 2026):* all twelve items are in. 43 unit tests and 7 Playwright tests pass; CI workflow added; README and screenshots updated. Redeploy happens when the branch is merged to `main`.
+
+*Next, before Phase 2:* rework the layering so `App.tsx` holds no domain logic (data fetching and derivation move to `src/lib/`, screens become thin). Decided 2 Nov 2026; see also the pipeline note under Ideas.
 
 ## Phase 2: Season smarts (0/13)
 *Why:* false starts and late onsets are the main planting risk. In 2026 Zimbabwe's Met service put the chance of below-normal rain for Oct 2026–Mar 2027 at 65%, and farmers were warned not to plant on the first storms ([FEWS NET](https://fews.net/southern-africa/zimbabwe/key-message-update/september-2026/print)).
