@@ -207,6 +207,7 @@ Each country needs: onset-rule presets from its national met service, crop and p
 
 ## Ideas (not yet planned)
 _Add new ideas here before they're placed in a milestone._
+- **Precomputed data pipeline (performance and low data).** Today the browser downloads 30 years of daily rain (about 200 KB per town, measured for Harare) to work out a dozen monthly normals and thirty season totals (under 1 KB). A build-time pipeline (Node scripts run in CI) could emit small per-district packs: normals, typical onset dates, calibrated outlook tables, later soil samples and price history. Same artifact serves Milestone 3's offline pack. Optionally a single stateless edge function that fetches the 16-day forecast and caches it by coordinates rounded to ~0.1°, which also coarsens the location sent upstream. No database, no accounts. Decided 2 Nov 2026: revisit after Milestone 1 Phase 1 and the layering rework, before Phase 2 (calibration and the simulator both want precomputed data).
 
 ---
 
