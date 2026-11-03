@@ -5,16 +5,18 @@ Kurima helps farmers across Africa make better decisions through the season: whe
 ## Status at a glance
 
 ```
-  Milestone 1  Weather and planting   ███████████████░░░░░░░░░░░░░░░   18/36 + 9 already built   NEXT
+  Milestone 1  Weather and planting    ████████████░░░░░░░░░░░░░░░░░░   18/45 + 9 already built   NEXT
     ├─ Phase 1  Trust the signal       ██████████████████████████████   12/12 done 2 Nov 2026 (redeploy pending)
-    ├─ Phase 2  Season smarts          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/13  calibrated outlook, season simulator   NEXT
+    ├─ Phase 2  Season smarts          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/12  calibrated outlook, season simulator
     ├─ Phase 3  Restructure            ██████████████████████████████   6/6   done 2 Nov 2026
-    └─ Phase 4  More weather           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/5   heat stress, rain map, compare, replay
-  Milestone 2  Soil and inputs        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8   soil, fertiliser, seed, will it pay?
-  Milestone 3  Crops and pests        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/10  crop planner, pest guide
-  Milestone 4  After harvest          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8   storage, markets, price simulator
-  Milestone 5  More countries         █████░░░░░░░░░░░░░░░░░░░░░░░░░   1/6   Zimbabwe, then southern, east, west
-  Milestone 6  Reach                  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/9   languages, low data, mobile app
+    ├─ Phase 4  Worth opening          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/9   water balance, soil temp, dashboard   NEXT
+    └─ Phase 5  More weather           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/5   heat stress, rain map, compare, replay
+  Milestone 2  Soil and inputs         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8   soil, fertiliser, seed, will it pay?
+  Milestone 3  Crops and pests         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/10  crop planner, pest guide
+  Milestone 4  After harvest           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8   storage, markets, price simulator
+  Milestone 5  Any place in Africa     ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/9   one picker, coverage, ZW districts
+  Milestone 6  More countries          █████░░░░░░░░░░░░░░░░░░░░░░░░░   1/6   Zimbabwe, then southern, east, west
+  Milestone 7  Reach                   ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/9   languages, low data, mobile app
 ```
 Each block of the bar is about 3% of that row. Update the counts when items are ticked.
 
@@ -37,6 +39,7 @@ Each block of the bar is about 3% of that row. Update the counts when items are 
 - **Every source credited.** Each data source (Open-Meteo, iSDAsoil, SoilGrids, WFP prices, and any added later) is credited in the app and README, with its licence.
 - **The farmer's units.** Farmers choose their units (rain, temperature, area, weight, currency) and Kurima converts; the choice is kept on the device.
 - **Docs in step.** Every phase's *Done when* includes the README and screenshots matching the app.
+- **Worth opening.** A screen earns its place by changing what the farmer does that day. Anything that is merely true goes into a section they can open, not the first thing they see.
 - **Measured by simulation, not tracking.** Kurima collects no usage data, so whether it helps is measured by replaying the past: what would Kurima have advised, and what happened next? Planting advice is replayed against past rain (Milestone 1 Phase 2); money advice ("will it pay?", "sell now or store?") against past prices (Milestones 2 and 4).
 
 ---
@@ -76,7 +79,7 @@ Focus: **rain-fed maize in selected Zimbabwean districts** first. The Africa-wid
 
 *Next:* the layering rework this called for became Phase 3, which was brought forward and is now done.
 
-## Phase 2: Season smarts (0/13)
+## Phase 2: Season smarts (0/12)
 *Why:* false starts and late onsets are the main planting risk. In 2026 Zimbabwe's Met service put the chance of below-normal rain for Oct 2026–Mar 2027 at 65%, and farmers were warned not to plant on the first storms ([FEWS NET](https://fews.net/southern-africa/zimbabwe/key-message-update/september-2026/print)).
 - [ ] **1.** **[Backend]** **Calibrate the season outlook.** Compare seasonal-model totals against the model's own historical runs (Open-Meteo's seasonal data is unadjusted), not against ERA5, before showing percentages.
 - [ ] **2.** **[Backend]** **Season simulator**: replay every season since 1991 day by day in the pilot districts, recording what Kurima would have advised, using only the data available on that day
@@ -88,9 +91,9 @@ Focus: **rain-fed maize in selected Zimbabwean districts** first. The Africa-wid
 - [ ] **8.** **[Backend + UI]** **Typical onset window**: from 30 years of daily history, the usual start date of the rains here and how late this year is
 - [ ] **9.** **[Backend + UI]** **This season vs past seasons**: rain so far compared with every year since 1991
 - [ ] **10.** **[Backend + UI]** **Country presets** for onset rules published by national services, clearly sourced
-- [ ] **11.** **[UI]** Tap-on-map location picker
-- [ ] **12.** **[Test]** Unit tests for calibration, season detection and onset dates, using recorded data from a few Zimbabwe districts
-- [ ] **13.** **[Test]** Playwright tests for each new view and the map picker
+- [ ] **11.** **[Test]** Unit tests for calibration, season detection and onset dates, using recorded data from a few Zimbabwe districts
+- [ ] **12.** **[Test]** Playwright tests for each new view
+*(The tap-on-map picker moved to Milestone 5, with the rest of choosing a place.)*
 
 *Done when:* the outlook is calibrated, the onset rule has been checked against past seasons with the results written up, and each new view has unit and end-to-end tests.
 
@@ -107,9 +110,23 @@ Today Kurima is one page with everything stacked. Phase 4's new views, then soil
 
 *Status (2 Nov 2026):* done, brought forward ahead of Phase 2 so the layering was fixed before more maths landed on it. Three screens (Today, Season, Settings) with the tab in the URL hash; chosen place, units and rule shared through a provider and kept on the device; `src/lib/` holds no React and `App.tsx` holds no domain logic; a `DataLabel` shows source, licence and age on every card; rain in mm or inches and temperature in °C or °F. Weight, area and currency wait for Milestone 2, when there is a yield or a price to convert. 66 unit tests and 14 Playwright tests.
 
-*Also done here, from the Zimbabwe-first principle:* the sample towns were six countries' capitals, which contradicted the pilot. They are now eight Zimbabwean districts spanning the wetter north-east to the drier south-west (Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo, Gwanda), sourced from Open-Meteo geocoding. Search still reaches any town in Africa, and a place outside Zimbabwe now says its advice is not checked yet — which also settles Milestone 5 item 5.
+*Also done here, bringing the app up to the Zimbabwe-first principle:* the first version's sample towns were six capitals across Africa, chosen to demonstrate the idea works anywhere. Now that the pilot is being built for real, they are eight Zimbabwean districts spanning the wetter north-east to the drier south-west (Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo, Gwanda), sourced from Open-Meteo geocoding. Search still reaches any town in Africa, and a place outside Zimbabwe now says its advice is not checked yet.
 
-## Phase 4: More weather (0/5)
+## Phase 4: Worth opening (0/9)
+*Why:* the plant-or-wait answer is trustworthy now, but what sits under it is a set of measurements rather than reasons to act, so there is little cause to open Kurima on a day when nothing has obviously changed. Two gaps. First, Kurima reads rainfall on its own: on 3 November 2026 Harare had 0 mm of rain against an evaporative demand (ET0) of 6.7–7.5 mm a day, so "20 mm fell over three days" can still leave the soil drier than it started. Second, every card carries equal weight on one page, so nothing reads as the point. Open-Meteo already carries what closes the first gap, in both the forecast and the archive, at no extra cost in requests.
+- [ ] **1.** **[Backend]** **Water balance:** rain against reference evapotranspiration (`et0_fao_evapotranspiration`), so onset is judged on the water the soil keeps, not the rain that fell. Thresholds reviewed against FAO and AREX guidance before they ship.
+- [ ] **2.** **[Backend + UI]** **Soil temperature at planting depth** (`soil_temperature_6cm`): maize germinates poorly in cold soil and suffers in very hot soil. Harare read 35.8 °C at 6 cm on 3 November 2026.
+- [ ] **3.** **[Backend + UI]** **How firm the forecast is** (`precipitation_probability_max`): "20 mm forecast" means a different thing at 15% than at 80%.
+- [ ] **4.** **[Backend + UI]** **Root-zone moisture** (`soil_moisture_27_to_81cm`) beside the surface layer, for water a crop can still reach.
+- [ ] **5.** **[UI]** **Dashboard layout:** the answer and the few numbers behind it first; charts, normals and method in sections a farmer opens only if they want them.
+- [ ] **6.** **[UI]** **Visual design:** real hierarchy and status colour that carries meaning, so a screen reads as a verdict rather than a stack of cards.
+- [ ] **7.** **[Backend + UI]** **When the window is likely to open:** days until conditions are expected to be met, so there is a reason to come back on a particular day.
+- [ ] **8.** **[Backend]** **Precomputed climate packs for the pilot districts.** Monthly normals and season totals for one district come to 318 bytes; the 198 KB of daily history they are derived from is 624 times larger, takes about 1.2 s on a good connection and far longer on a village one. Bundle the packs, fall back to the live archive elsewhere. First real use of the data-source layer, and the bounded first step of the pipeline under Ideas.
+- [ ] **9.** **[Test]** Unit tests for the water balance, the germination window and pack loading; Playwright tests for the dashboard and its collapsed sections.
+
+*Done when:* the Today screen answers "what do I do, and why" without scrolling, the signal accounts for how fast the soil dries, the Season screen opens at once for a pilot district, and the agronomic thresholds have been reviewed.
+
+## Phase 5: More weather (0/5)
 - [ ] **1.** **[Backend + UI]** Heat-stress days for crops (temperature from Open-Meteo)
 - [ ] **2.** **[UI]** Map of rain across a region, coloured wet to dry
 - [ ] **3.** **[UI]** Compare two towns side by side
@@ -181,11 +198,33 @@ Today Kurima is one page with everything stacked. Phase 4's new views, then soil
 
 ---
 
-# Milestone 5: More countries (1/6)
+# Milestone 5: Any place in Africa
+*Goal:* choosing where you farm, and knowing how far Kurima's advice can be trusted there, is one coherent idea rather than a pilot list with a search box beside it.
+
+*Why:* the picker currently offers eight Zimbabwean districts and hides "somewhere else in Africa" behind a disclosure, which reads as two products sharing a screen. The honest version is a single question — where do you farm? — answered at whatever confidence Kurima actually has for that place. That has to exist before more countries arrive (Milestone 6), because each one lands at a different level of confidence.
+
+## Phase 1: One way to choose a place (0/5)
+- [ ] **1.** **[Backend]** **Coverage levels** as a first-class idea: *checked* (rules validated against past seasons there), *weather only* (the forecast is right, the rule is not reviewed). One function answers which applies to a place.
+- [ ] **2.** **[UI]** **One picker.** Search and the pilot districts become the same control, not a list with a hidden fallback; a search result carries its coverage level.
+- [ ] **3.** **[UI]** Coverage shown where it changes what the farmer should do, in plain words, without burying the advice in warnings.
+- [ ] **4.** **[Backend + UI]** **Recent places**, kept on the device, so a farmer with two fields switches in one tap.
+- [ ] **5.** **[UI]** Tap-on-map picker *(moved here from Milestone 1 Phase 2, where it sat oddly among the season maths)*.
+
+## Phase 2: Zimbabwe properly (0/4)
+- [ ] **1.** **[Backend]** All of Zimbabwe's districts rather than eight sample towns, from a named open administrative dataset with the source recorded.
+- [ ] **2.** **[Backend]** The district list bundled with the app, so choosing a place works with no signal.
+- [ ] **3.** **[UI]** Choose by province, then district, for farmers who do not think in nearest-large-town.
+- [ ] **4.** **[Test]** Unit tests for coverage levels and the district data; Playwright tests for picking, searching and switching places offline.
+
+*Done when:* a farmer anywhere in Africa picks their place one way, and Kurima says plainly how much it knows about there.
+
+---
+
+# Milestone 6: More countries (1/6)
 *Goal:* Kurima's advice is checked and adapted country by country, starting with Zimbabwe, instead of one rule for all of Africa.
 
-Each country needs: onset-rule presets from its national met service, crop and pest guides checked by local experts, local market prices, sample soil data, and its main languages (Milestone 6).
-- [ ] **1.** **Phase 1: Zimbabwe, all districts.** Extend from the pilot districts to the whole country; Shona and Ndebele (with Milestone 6)
+Each country needs: onset-rule presets from its national met service, crop and pest guides checked by local experts, local market prices, sample soil data, and its main languages (Milestone 7). Milestone 5 builds the coverage machinery this leans on.
+- [ ] **1.** **Phase 1: Zimbabwe, all districts.** Extend from the pilot districts to the whole country; Shona and Ndebele (with Milestone 7)
 - [ ] **2.** **Phase 2: Southern Africa neighbours** (e.g. Malawi, Zambia, Mozambique): similar one-season rains, closest to Zimbabwe's rules
 - [ ] **3.** **Phase 3: East Africa** (e.g. Kenya, Tanzania, Uganda): two rainy seasons, needs bimodal support from Milestone 1 Phase 2
 - [ ] **4.** **Phase 4: West Africa** (e.g. Nigeria, Ghana, Mali): different crops and seasons; French and Hausa
@@ -196,7 +235,7 @@ Each country needs: onset-rule presets from its national met service, crop and p
 
 ---
 
-# Milestone 6: Reach
+# Milestone 7: Reach
 
 ## Phase 1: Languages and low data (0/5)
 - [ ] **1.** **[UI]** Languages: Shona, Ndebele, Swahili, Hausa, French and Portuguese, translated and checked by native speakers
@@ -215,7 +254,7 @@ Each country needs: onset-rule presets from its national met service, crop and p
 
 ## Ideas (not yet planned)
 _Add new ideas here before they're placed in a milestone._
-- **Precomputed data pipeline (performance and low data).** Today the browser downloads 30 years of daily rain (about 200 KB per town, measured for Harare) to work out a dozen monthly normals and thirty season totals (under 1 KB). A build-time pipeline (Node scripts run in CI) could emit small per-district packs: normals, typical onset dates, calibrated outlook tables, later soil samples and price history. Same artifact serves Milestone 3's offline pack. Optionally a single stateless edge function that fetches the 16-day forecast and caches it by coordinates rounded to ~0.1°, which also coarsens the location sent upstream. No database, no accounts. Decided 2 Nov 2026: revisit after Milestone 1 Phase 1 and the layering rework, before Phase 2 (calibration and the simulator both want precomputed data).
+- **Precomputed data pipeline (performance and low data).** Today the browser downloads 30 years of daily rain (about 200 KB per town, measured for Harare) to work out a dozen monthly normals and thirty season totals (under 1 KB). A build-time pipeline (Node scripts run in CI) could emit small per-district packs: normals, typical onset dates, calibrated outlook tables, later soil samples and price history. Same artifact serves Milestone 3's offline pack. Optionally a single stateless edge function that fetches the 16-day forecast and caches it by coordinates rounded to ~0.1°, which also coarsens the location sent upstream. No database, no accounts. Decided 2 Nov 2026, revisited 3 Nov: the bounded first step (climate packs for the pilot districts) is now Milestone 1 Phase 4 item 8, since it fixes a slow Season screen today. The wider pipeline — calibration tables, simulator output, soil and price data — stays here until Phase 2 needs it.
 
 ---
 
