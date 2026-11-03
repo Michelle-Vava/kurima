@@ -5,16 +5,16 @@ Kurima helps farmers across Africa make better decisions through the season: whe
 ## Status at a glance
 
 ```
-  Milestone 1  Weather and planting   ██████████░░░░░░░░░░░░░░░░░░░░  12/36   + 9 already built   NEXT
-    ├─ Phase 1  Trust the signal       ██████████████████████████████  12/12   done 2 Nov 2026 (redeploy pending)
-    ├─ Phase 2  Season smarts          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/13   calibrated outlook, season simulator
-    ├─ Phase 3  Restructure            ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/6    screens, data layer, units
-    └─ Phase 4  More weather           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/5    heat stress, rain map, compare, replay
-  Milestone 2  Soil and inputs        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8    soil, fertiliser, seed, will it pay?
-  Milestone 3  Crops and pests        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/10   crop planner, pest guide
-  Milestone 4  After harvest          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8    storage, markets, price simulator
-  Milestone 5  More countries         ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/6    Zimbabwe, then southern, east, west
-  Milestone 6  Reach                  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/9    languages, low data, mobile app
+  Milestone 1  Weather and planting   ███████████████░░░░░░░░░░░░░░░   18/36 + 9 already built   NEXT
+    ├─ Phase 1  Trust the signal       ██████████████████████████████   12/12 done 2 Nov 2026 (redeploy pending)
+    ├─ Phase 2  Season smarts          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/13  calibrated outlook, season simulator   NEXT
+    ├─ Phase 3  Restructure            ██████████████████████████████   6/6   done 2 Nov 2026
+    └─ Phase 4  More weather           ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/5   heat stress, rain map, compare, replay
+  Milestone 2  Soil and inputs        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8   soil, fertiliser, seed, will it pay?
+  Milestone 3  Crops and pests        ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/10  crop planner, pest guide
+  Milestone 4  After harvest          ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/8   storage, markets, price simulator
+  Milestone 5  More countries         █████░░░░░░░░░░░░░░░░░░░░░░░░░   1/6   Zimbabwe, then southern, east, west
+  Milestone 6  Reach                  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░   0/9   languages, low data, mobile app
 ```
 Each block of the bar is about 3% of that row. Update the counts when items are ticked.
 
@@ -74,7 +74,7 @@ Focus: **rain-fed maize in selected Zimbabwean districts** first. The Africa-wid
 
 *Status (2 Nov 2026):* all twelve items are in. 43 unit tests and 7 Playwright tests pass; CI workflow added; README and screenshots updated. Redeploy happens when the branch is merged to `main`.
 
-*Next, before Phase 2:* rework the layering so `App.tsx` holds no domain logic (data fetching and derivation move to `src/lib/`, screens become thin). Decided 2 Nov 2026; see also the pipeline note under Ideas.
+*Next:* the layering rework this called for became Phase 3, which was brought forward and is now done.
 
 ## Phase 2: Season smarts (0/13)
 *Why:* false starts and late onsets are the main planting risk. In 2026 Zimbabwe's Met service put the chance of below-normal rain for Oct 2026–Mar 2027 at 65%, and farmers were warned not to plant on the first storms ([FEWS NET](https://fews.net/southern-africa/zimbabwe/key-message-update/september-2026/print)).
@@ -94,16 +94,20 @@ Focus: **rain-fed maize in selected Zimbabwean districts** first. The Africa-wid
 
 *Done when:* the outlook is calibrated, the onset rule has been checked against past seasons with the results written up, and each new view has unit and end-to-end tests.
 
-## Phase 3: Restructure for more than one page (0/6)
+## Phase 3: Restructure for more than one page (6/6)
 Today Kurima is one page with everything stacked. Phase 4's new views, then soil, crops and markets, need room.
-- [ ] **1.** **[UI]** Navigation: separate screens or tabs (e.g. Today, Season, later Soil, Crops, Markets)
-- [ ] **2.** **[Backend]** Shared chosen place and settings, available to every screen
-- [ ] **3.** **[Backend]** A data-source layer: every source answers "give me X for this place" the same way, so sample data can be swapped for an API without touching the screens
-- [ ] **4.** **[UI]** A consistent "sample data" and "data age" label used everywhere
-- [ ] **5.** **[Backend + UI]** Units setting: the farmer picks their units (e.g. mm or inches of rain, °C or °F, kg per hectare or bags per acre, local currency) and every screen converts; the choice is kept on the device
-- [ ] **6.** **[Test]** Unit tests for the conversions; Playwright tests for moving between screens, keeping the chosen place, and switching units
+- [x] **1.** **[UI]** Navigation: separate screens or tabs (e.g. Today, Season, later Soil, Crops, Markets)
+- [x] **2.** **[Backend]** Shared chosen place and settings, available to every screen
+- [x] **3.** **[Backend]** A data-source layer: every source answers "give me X for this place" the same way, so sample data can be swapped for an API without touching the screens
+- [x] **4.** **[UI]** A consistent "sample data" and "data age" label used everywhere
+- [x] **5.** **[Backend + UI]** Units setting: the farmer picks their units (e.g. mm or inches of rain, °C or °F, kg per hectare or bags per acre, local currency) and every screen converts; the choice is kept on the device
+- [x] **6.** **[Test]** Unit tests for the conversions; Playwright tests for moving between screens, keeping the chosen place, and switching units
 
 *Done when:* the weather screens work exactly as before inside the new structure, units can be switched everywhere, and all unit and Playwright tests pass.
+
+*Status (2 Nov 2026):* done, brought forward ahead of Phase 2 so the layering was fixed before more maths landed on it. Three screens (Today, Season, Settings) with the tab in the URL hash; chosen place, units and rule shared through a provider and kept on the device; `src/lib/` holds no React and `App.tsx` holds no domain logic; a `DataLabel` shows source, licence and age on every card; rain in mm or inches and temperature in °C or °F. Weight, area and currency wait for Milestone 2, when there is a yield or a price to convert. 66 unit tests and 14 Playwright tests.
+
+*Also done here, from the Zimbabwe-first principle:* the sample towns were six countries' capitals, which contradicted the pilot. They are now eight Zimbabwean districts spanning the wetter north-east to the drier south-west (Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo, Gwanda), sourced from Open-Meteo geocoding. Search still reaches any town in Africa, and a place outside Zimbabwe now says its advice is not checked yet — which also settles Milestone 5 item 5.
 
 ## Phase 4: More weather (0/5)
 - [ ] **1.** **[Backend + UI]** Heat-stress days for crops (temperature from Open-Meteo)
@@ -177,7 +181,7 @@ Today Kurima is one page with everything stacked. Phase 4's new views, then soil
 
 ---
 
-# Milestone 5: More countries (0/6)
+# Milestone 5: More countries (1/6)
 *Goal:* Kurima's advice is checked and adapted country by country, starting with Zimbabwe, instead of one rule for all of Africa.
 
 Each country needs: onset-rule presets from its national met service, crop and pest guides checked by local experts, local market prices, sample soil data, and its main languages (Milestone 6).
@@ -185,7 +189,7 @@ Each country needs: onset-rule presets from its national met service, crop and p
 - [ ] **2.** **Phase 2: Southern Africa neighbours** (e.g. Malawi, Zambia, Mozambique): similar one-season rains, closest to Zimbabwe's rules
 - [ ] **3.** **Phase 3: East Africa** (e.g. Kenya, Tanzania, Uganda): two rainy seasons, needs bimodal support from Milestone 1 Phase 2
 - [ ] **4.** **Phase 4: West Africa** (e.g. Nigeria, Ghana, Mali): different crops and seasons; French and Hausa
-- [ ] **5.** **[UI]** Show which countries have checked advice, and a clear note where a place isn't covered yet
+- [x] **5.** **[UI]** Show which countries have checked advice, and a clear note where a place isn't covered yet *(done 2 Nov 2026 with Milestone 1 Phase 3)*
 - [ ] **6.** **[Test]** Unit tests per country preset; Playwright tests for a sample town in each country
 
 *Done when (per country):* presets, guides and sample data are sourced and reviewed for that country, with tests.

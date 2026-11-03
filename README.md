@@ -1,6 +1,6 @@
 # Kurima 🌾
 
-**Should I plant yet?** Rainfall, forecasts and season outlooks for farmers anywhere in Africa.
+**Should I plant yet?** Rainfall, forecasts and season outlooks for farmers, starting with Zimbabwe.
 
 *Kurima* means "farming" in Shona.
 
@@ -13,7 +13,7 @@
 
 Rainy seasons across Africa are getting harder to read: rains start late, false starts tempt farmers to plant too early, and long dry spells kill seedlings. Seasonal outlooks exist, but they rarely reach farmers in a form they can act on for their own village.
 
-Kurima turns free satellite and weather-model data into plain guidance for one location:
+Kurima turns free satellite and weather-model data into plain guidance for one district, across three screens — **Today**, **Season** and **Settings**:
 
 | | What you see | Data |
 |---|---|---|
@@ -24,13 +24,15 @@ Kurima turns free satellite and weather-model data into plain guidance for one l
 
 **Who it's for:** smallholder farmers, extension officers and farmer groups who want a quick, local read on the season.
 
+**Where it's checked:** the planting rule is being validated for eight Zimbabwean districts first — Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo and Gwanda, spanning the wetter north-east maize belt to the drier south-west. Search still reaches any town in Africa, and anywhere outside Zimbabwe is clearly marked as not yet checked.
+
 **Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. See [ROADMAP.md](ROADMAP.md).
 
 ---
 
 ## No accounts, no personal data
 
-Kurima has no login and no backend. You search for a town or pick a sample one, and the app asks Open-Meteo for weather at that town's coordinates. It never asks for your device's location. Nothing is stored except a local cache of historical data in your own browser.
+Kurima has no login and no backend. You pick a district or search for a town, and the app asks Open-Meteo for weather at those coordinates. It never asks for your device's location. Your district, units and planting rule are kept on your own device, along with a local cache of historical data.
 
 ## The planting rule
 
@@ -49,6 +51,7 @@ Kurima says **"Not enough data"** rather than guessing when the forecast is shor
 | App | React 19 + TypeScript + Vite |
 | Offline | vite-plugin-pwa (service worker caches the app and recent weather) |
 | Tests | Vitest (unit, the maths) and Playwright (end-to-end, with Open-Meteo faked) |
+| Units | Rain in mm or inches, temperature in °C or °F, chosen on the device |
 | CI | GitHub Actions: type-check, lint, unit tests, build, Playwright |
 | Data | [Open-Meteo](https://open-meteo.com/) forecast, historical (ERA5), seasonal (ECMWF) and geocoding APIs |
 
@@ -56,14 +59,20 @@ Kurima says **"Not enough data"** rather than guessing when the forecast is shor
 
 ```
 src/
-├── lib/
-│   ├── onset.ts        # Plant-or-wait signal, incl. "not enough data" (pure functions, tested)
-│   ├── climate.ts      # Monthly normals, complete-season totals, tercile outlook, dry-season check (tested)
-│   ├── freshness.ts    # Age of a cached forecast and when it is too old to use (tested)
+├── lib/                # No React in here: pure logic and data access, all tested
+│   ├── onset.ts        # Plant-or-wait signal, incl. "not enough data"
+│   ├── climate.ts      # Monthly normals, complete-season totals, tercile outlook, dry-season check
+│   ├── freshness.ts    # Age of a cached forecast and when it is too old to use
+│   ├── units.ts        # Rain and temperature conversions
+│   ├── places.ts       # Zimbabwe pilot districts and the "checked here?" test
+│   ├── sources.ts      # Data-source layer: every source answers "give me X for this place"
 │   └── openMeteo.ts    # API client: search, weather, history, seasonal
-├── components/         # Search, signal card, rain chart, outlook, normals, rule settings
-└── App.tsx
+├── screens/            # Today, Season, Settings
+├── components/         # Picker, nav, signal card, charts, data label, settings
+├── state/              # Chosen place and settings, shared and kept on the device
+└── App.tsx             # Shell: header, place, navigation
 e2e/                    # Playwright tests and fake Open-Meteo responses
+scripts/                # Screenshot and test-run helpers
 .github/workflows/      # CI
 ```
 
@@ -81,9 +90,10 @@ npm run build      # production build + service worker
 
 npx playwright install chromium   # once
 npm run e2e        # end-to-end tests against the dev server, weather faked
+npm run screenshots # refresh the README screenshots from live data
 ```
 
-To refresh the README screenshots from live data, run the dev server on port 4173 and then `node scripts/screenshots.mjs`.
+`npm run e2e` and `npm run screenshots` each start their own dev server on a free port and stop it when they finish, so they never clash with a server you already have running.
 
 No API keys are needed.
 

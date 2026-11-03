@@ -2,7 +2,7 @@
 // Dates are built around the device's local "today", because the app judges a
 // forecast's age by comparing its "today" with the device date.
 
-import type { Page } from '@playwright/test'
+import { expect, type Page } from '@playwright/test'
 
 export function isoDate(d: Date): string {
   const y = d.getFullYear()
@@ -96,10 +96,16 @@ export function seasonalResponse(today = daysFromToday(0), mmPerDay = 1) {
   }
 }
 
+/** Results for the Africa-wide search box. */
+export function geocodeResponse(places: { name: string; country: string; country_code: string; admin1?: string; latitude: number; longitude: number }[]) {
+  return { results: places }
+}
+
 export interface FakeWeather {
   forecast?: ReturnType<typeof forecastResponse>
   history?: ReturnType<typeof historyResponse>
   seasonal?: ReturnType<typeof seasonalResponse>
+  geocode?: ReturnType<typeof geocodeResponse>
 }
 
 /** Intercept every Open-Meteo call so the test never touches the live service. */
@@ -118,12 +124,31 @@ export async function fakeOpenMeteo(page: Page, fake: FakeWeather = {}) {
   await page.route(/^https:\/\/seasonal-api\.open-meteo\.com\//, (route) =>
     route.fulfill(json(fake.seasonal ?? seasonalResponse())),
   )
-  await page.route(/^https:\/\/geocoding-api\.open-meteo\.com\//, (route) => route.fulfill(json({ results: [] })))
+  await page.route(/^https:\/\/geocoding-api\.open-meteo\.com\//, (route) =>
+    route.fulfill(json(fake.geocode ?? { results: [] })),
+  )
 }
 
-/** Pick the Harare sample town from the quick-pick chips. */
-export async function pickHarare(page: Page) {
-  await page.goto('/')
-  await page.getByRole('button', { name: 'Harare, Zimbabwe' }).click()
-  await page.getByRole('heading', { name: 'Harare' }).waitFor()
+/**
+ * A district chip. Chips are labelled "Bindura, Mashonaland Central" but
+ * "Harare" where the province shares the district's name, so match on the
+ * district name at the start rather than the whole label.
+ */
+export function districtChip(page: Page, name: string) {
+  return page.getByRole('button', { name: new RegExp(`^${name}`) })
 }
+
+/** Pick one of the Zimbabwe pilot districts from the chips. */
+export async function pickDistrict(page: Page, name = 'Harare') {
+  await page.goto('/')
+  await districtChip(page, name).click()
+  await page.getByRole('heading', { name, level: 2 }).waitFor()
+}
+
+/** Move to a tab and wait for it to become current. */
+export async function goToTab(page: Page, label: 'Today' | 'Season' | 'Settings') {
+  const tab = page.getByRole('button', { name: label, exact: true })
+  await tab.click()
+  await expect(tab).toHaveAttribute('aria-current', 'page')
+}
+

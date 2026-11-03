@@ -1,4 +1,5 @@
 import { plural, type SignalResult } from '../lib/onset'
+import { formatRain, type Units } from '../lib/units'
 
 const COPY = {
   plant: { title: 'Good time to plant', icon: '🌱', note: 'The rains look established.' },
@@ -10,13 +11,11 @@ const COPY = {
 interface Props {
   result: SignalResult
   soilMoisture: number | null
-  /** Date the forecast was issued for (YYYY-MM-DD, local to the place). */
-  issued: string
-  /** Whole days since `issued`. */
-  ageDays: number
+  units: Units
+  children?: React.ReactNode
 }
 
-export function SignalCard({ result, soilMoisture, issued, ageDays }: Props) {
+export function SignalCard({ result, soilMoisture, units, children }: Props) {
   const c = COPY[result.signal]
   const unknown = result.signal === 'unknown'
   return (
@@ -31,8 +30,8 @@ export function SignalCard({ result, soilMoisture, issued, ageDays }: Props) {
 
       {!unknown && (
         <div className="stats">
-          <div><span>{result.recentWetMm} mm</span>wettest recent spell (modelled)</div>
-          <div><span>{result.forecastWetMm} mm</span>wettest forecast spell</div>
+          <div><span>{formatRain(result.recentWetMm, units.rain)}</span>wettest recent spell (modelled)</div>
+          <div><span>{formatRain(result.forecastWetMm, units.rain)}</span>wettest forecast spell</div>
           <div><span>{result.forecastDrySpell} {plural(result.forecastDrySpell, 'day')}</span>longest dry run ahead</div>
           {soilMoisture !== null && (
             <div><span>{Math.round(soilMoisture * 100)}%</span>soil moisture (9–27 cm)</div>
@@ -43,12 +42,7 @@ export function SignalCard({ result, soilMoisture, issued, ageDays }: Props) {
       <ul className="reasons">
         {result.reasons.map((r) => <li key={r}>{r}</li>)}
       </ul>
-
-      <p className="fine data-age">
-        Forecast issued {issued}
-        {ageDays === 0 ? ' (today)' : ` (${ageDays} ${plural(ageDays, 'day')} old)`}. Past days are modelled estimates,
-        not rain-gauge readings.
-      </p>
+      {children}
     </section>
   )
 }

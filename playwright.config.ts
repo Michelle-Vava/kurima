@@ -4,7 +4,13 @@ import { defineConfig, devices } from '@playwright/test'
 // request faked (see e2e/fixtures.ts), so they never depend on live weather.
 // The dev server does not register the service worker, which keeps the fakes
 // in control of the network.
-const PORT = 4173
+//
+// E2E_PORT is chosen by scripts/run-e2e.mjs (`npm run e2e`) and must be set
+// before the config loads: every worker re-imports this file, so picking a
+// port here would give each one a different answer. Playwright starts the
+// server on that port and stops it again at the end of the run, so nothing
+// already listening elsewhere is touched.
+const PORT = Number(process.env.E2E_PORT) || 4173
 
 export default defineConfig({
   testDir: './e2e',
@@ -20,7 +26,7 @@ export default defineConfig({
   webServer: {
     command: `npm run dev -- --port ${PORT} --strictPort`,
     url: `http://localhost:${PORT}`,
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 60_000,
   },
 })

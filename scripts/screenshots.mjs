@@ -1,31 +1,50 @@
 // Regenerate the README screenshots against live Open-Meteo data.
-// Usage: start the dev server (npm run dev -- --port 4173), then
-//        node scripts/screenshots.mjs
-// Desktop shows Kisumu, Kenya; mobile shows Kano, Nigeria, as in the README.
+// Usage: node scripts/screenshots.mjs
+// Starts its own Vite dev server on a free port and stops it when done, so it
+// never disturbs a server you already have running.
+import { spawn } from 'node:child_process'
 import { chromium, devices } from '@playwright/test'
+import { freePort } from './free-port.mjs'
 
-const BASE = process.env.BASE_URL ?? 'http://localhost:4173'
+const port = Number(process.env.E2E_PORT) || (await freePort())
+const base = process.env.BASE_URL ?? `http://localhost:${port}`
+const ownServer = !process.env.BASE_URL
+
+async function waitFor(url, tries = 60) {
+  for (let i = 0; i < tries; i++) {
+    try {
+      if ((await fetch(url)).ok) return
+    } catch {
+      /* not up yet */
+    }
+    await new Promise((r) => setTimeout(r, 500))
+  }
+  throw new Error(`dev server never came up at ${url}`)
+}
 
 async function capture(context, town, path) {
   const page = await context.newPage()
-  await page.goto(BASE)
+  await page.goto(base)
   await page.getByRole('button', { name: town }).click()
   await page.locator('[data-signal], [data-testid="stale"]').first().waitFor({ timeout: 30_000 })
-  await page.getByRole('heading', { name: /Normal rainfall here/ }).waitFor({ timeout: 60_000 })
-  await page.locator('[data-testid="outlook"], [data-testid="outlook-dry"], .card.error').first().waitFor({ timeout: 60_000 })
-  await page.waitForTimeout(500) // let the last card settle
+  await page.waitForTimeout(500)
   await page.screenshot({ path, fullPage: true })
-  const signal = await page.locator('[data-signal] h2').first().textContent().catch(() => '(no signal)')
-  console.log(`${path}: ${town} -> ${signal}`)
+  console.log(`${path}: ${town} -> ${await page.locator('[data-signal] h2').first().textContent()}`)
   await page.close()
 }
 
+let server
+if (ownServer) {
+  server = spawn('npx', ['vite', '--port', String(port), '--strictPort'], { stdio: 'ignore' })
+  await waitFor(base)
+}
 const browser = await chromium.launch()
 try {
   const desktop = await browser.newContext({ viewport: { width: 1200, height: 900 }, deviceScaleFactor: 1 })
-  await capture(desktop, 'Kisumu, Kenya', 'docs/screenshot-desktop.png')
+  await capture(desktop, /^Harare/, 'docs/screenshot-desktop.png')
   const mobile = await browser.newContext({ ...devices['iPhone 13'], deviceScaleFactor: 2 })
-  await capture(mobile, 'Kano, Nigeria', 'docs/screenshot-mobile.png')
+  await capture(mobile, /^Gwanda/, 'docs/screenshot-mobile.png')
 } finally {
   await browser.close()
+  server?.kill()
 }
