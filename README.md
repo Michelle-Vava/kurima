@@ -26,7 +26,8 @@ Kurima turns free satellite and weather-model data into plain guidance for one d
 
 **Where it's checked:** the planting rule is being validated for eight Zimbabwean districts first — Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo and Gwanda, spanning the wetter north-east maize belt to the drier south-west. Search still reaches any town in Africa, and anywhere outside Zimbabwe is clearly marked as not yet checked.
 
-**Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. See [ROADMAP.md](ROADMAP.md).
+**Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. See [BUILD-ORDER.md](BUILD-ORDER.md) for what is being built next and why, and
+[ROADMAP.md](ROADMAP.md) for the longer ambition.
 
 ---
 

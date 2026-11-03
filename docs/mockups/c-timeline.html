@@ -1,0 +1,64 @@
+<!doctype html><meta charset="utf-8"><title>C — Season timeline led</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+.season{background:linear-gradient(170deg,#1d3a26,#2a5438);color:#fff;
+  border-radius:20px;padding:19px 18px 16px;margin-bottom:12px}
+.season .label{color:#9dbfa8}
+.season h1{margin:7px 0 3px;font-size:27px;letter-spacing:-.3px}
+.season p{margin:0;color:#cfe0d4;font-size:13.5px;line-height:1.5}
+.rail{position:relative;height:62px;margin:20px 0 4px}
+.rtrack{position:absolute;top:26px;left:0;right:0;height:8px;border-radius:8px;background:#2f5740}
+.rwin{position:absolute;top:26px;left:47%;right:17%;height:8px;border-radius:8px;
+  background:var(--maize);opacity:.85}
+.rnow{position:absolute;top:16px;left:21%;width:3px;height:28px;background:#fff;border-radius:3px}
+.rnow:after{content:'today';position:absolute;top:-15px;left:50%;transform:translateX(-50%);
+  font-size:10.5px;color:#fff;white-space:nowrap}
+.rlab{position:absolute;top:48px;font-size:10.5px;color:#9dbfa8;white-space:nowrap}
+.cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.mini{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px}
+.mini .k{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.mini .v{font-size:20px;font-weight:700;margin:4px 0 2px}
+.mini .n{color:var(--muted);font-size:11.5px;line-height:1.4}
+.neg{color:var(--dry)} .warn{color:var(--maize)}
+.next{background:var(--card);border:1px solid var(--line);border-left:6px solid var(--sky);
+  border-radius:14px;padding:14px 15px;margin-bottom:12px}
+.next b{font-size:15px}
+.next p{margin:3px 0 0;color:var(--muted);font-size:12.5px;line-height:1.5}
+</style>
+<div class="phone">
+ <div class="topbar"><div class="place"><b>Harare</b><span>Zimbabwe</span></div>
+  <button class="chg">Change</button></div>
+ <div class="tabs"><div class="on">Today</div><div>Season</div><div>Settings</div></div>
+
+ <div class="season">
+  <span class="label">Season 2026–27 · not started</span>
+  <h1>24 days early</h1>
+  <p>In most years the rains here break around <b style="color:#fff">27 November</b>. Planting now risks losing the seed.</p>
+  <div class="rail">
+    <div class="rtrack"></div><div class="rwin"></div><div class="rnow"></div>
+    <span class="rlab" style="left:0">1 Oct</span>
+    <span class="rlab" style="left:44%">usual onset</span>
+    <span class="rlab" style="right:0">Feb</span>
+  </div>
+ </div>
+
+ <div class="next"><b>⛈ First real rain: 9 November</b>
+  <p>18 mm expected, 70% chance. That is about half what the soil needs to hold a seedling.</p></div>
+
+ <div class="cards">
+  <div class="mini"><div class="k">Ground water</div><div class="v neg">−85 mm</div>
+    <div class="n">over 14 days<br>sun takes 7 mm a day</div></div>
+  <div class="mini"><div class="k">Soil at 6 cm</div><div class="v warn">36 °C</div>
+    <div class="n">too hot to sow<br>wants under 30</div></div>
+ </div>
+
+ <details><summary>Why not plant on the 9 November rain?</summary><div class="disc">
+   18 mm wets the top few centimetres, but the next fortnight still loses 55 mm more than it gains.
+   A seedling that germinates then would likely die before the rains settle.</div></details>
+ <details><summary>Rain, day by day</summary><div class="disc">Last 14 days and next 16.</div></details>
+ <details><summary>Past seasons: when did the rains break?</summary><div class="disc">
+   Earliest 3 Oct, latest 25 Jan, middle half 20 Nov – 9 Dec, over 29 seasons.</div></details>
+ <details><summary>How this is worked out</summary><div class="disc">
+   Open-Meteo forecast and ERA5 history; rain against FAO reference evapotranspiration.</div></details>
+ <p class="foot"><b>Guidance only.</b> Follow your extension officer.<br>Forecast issued today · Open-Meteo (CC BY 4.0)</p>
+</div>

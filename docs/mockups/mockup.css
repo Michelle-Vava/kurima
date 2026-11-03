@@ -1,0 +1,35 @@
+/* Static mockups for choosing a direction. Not wired to the app.
+   Real Harare numbers, 3 November 2026. */
+:root{
+  --bg:#f4efe4; --card:#fffdf8; --ink:#241d15; --muted:#6f6253; --line:#e4d8c5;
+  --soil:#7a4e2d; --maize:#d99a1e; --leaf:#2f8f4e; --deep:#1d3a26; --dry:#c2410c;
+  --sky:#3a7bd5; --wet:#8fb5ea; --radius:16px;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+.phone{width:420px;margin:0 auto;padding:14px 14px 28px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.place{display:flex;align-items:baseline;gap:8px}
+.place b{font-size:19px}
+.place span{color:var(--muted);font-size:13px}
+.chg{border:1px solid var(--line);background:var(--card);color:var(--muted);
+  border-radius:999px;padding:6px 12px;font:inherit;font-size:12px}
+.tabs{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);
+  border-radius:12px;padding:3px;margin-bottom:14px}
+.tabs div{flex:1;text-align:center;padding:8px;border-radius:9px;font-size:13px;
+  font-weight:600;color:var(--muted)}
+.tabs div.on{background:var(--deep);color:#fff}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:16px;margin-bottom:12px}
+h3{margin:0 0 4px;font-size:15px}
+.sub{margin:0;color:var(--muted);font-size:13px;line-height:1.5}
+.fine{margin:10px 0 0;color:var(--muted);font-size:12px;line-height:1.5}
+.label{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:700}
+details{margin-bottom:10px;background:var(--card);border:1px solid var(--line);border-radius:14px}
+summary{padding:14px 16px;font-size:14px;font-weight:600;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:'▾';color:var(--muted);font-size:13px}
+.disc{padding:0 16px 16px;color:var(--muted);font-size:13px;line-height:1.55}
+.foot{color:var(--muted);font-size:11px;text-align:center;line-height:1.6;margin-top:16px}

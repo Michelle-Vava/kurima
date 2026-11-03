@@ -1,5 +1,9 @@
 # Kurima Roadmap
 
+> **This file is the ambition, not the order of work.** It lists everything Kurima should
+> eventually do, grouped by subject. For what is being built next and why, see
+> [BUILD-ORDER.md](BUILD-ORDER.md), which deliberately cuts across these milestones.
+
 Kurima helps farmers across Africa make better decisions through the season: when to plant, what to expect from the rains, what their soil needs, where to sell, and how to keep what they harvest. Everything runs on free, open data with no accounts and no personal data.
 
 ## Status at a glance

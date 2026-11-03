@@ -1,0 +1,55 @@
+<!doctype html><meta charset="utf-8"><title>A — Verdict led</title>
+<link rel="stylesheet" href="mockup.css">
+<style>
+.verdict{background:var(--deep);color:#fff;border-radius:20px;padding:20px;margin-bottom:12px}
+.vtop{display:flex;align-items:center;gap:12px}
+.vdot{width:12px;height:12px;border-radius:99px;background:var(--maize);flex:none}
+.verdict h1{margin:6px 0 2px;font-size:30px;letter-spacing:-.4px}
+.verdict .why{margin:0;color:#cfe0d4;font-size:14px;line-height:1.5}
+.countdown{margin-top:16px;padding-top:14px;border-top:1px solid #2f5740;
+  display:flex;align-items:center;gap:14px}
+.countdown .num{font-size:30px;font-weight:700;line-height:1;white-space:nowrap}
+.countdown .num small{display:block;font-size:12px;font-weight:600;color:#9dbfa8;margin-top:3px}
+.countdown .txt{color:#cfe0d4;font-size:13px;line-height:1.45}
+.countdown .txt b{color:#fff;font-size:15px}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.tile{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px}
+.tile .v{font-size:21px;font-weight:700;margin:3px 0 2px}
+.tile .n{color:var(--muted);font-size:11.5px;line-height:1.4}
+.neg{color:var(--dry)} .warn{color:var(--maize)} .ok{color:var(--leaf)}
+</style>
+<div class="phone">
+ <div class="topbar"><div class="place"><b>Harare</b><span>Zimbabwe</span></div>
+  <button class="chg">Change</button></div>
+ <div class="tabs"><div class="on">Today</div><div>Season</div><div>Settings</div></div>
+
+ <div class="verdict">
+  <div class="vtop"><span class="vdot"></span><span class="label" style="color:#9dbfa8">Not time to plant</span></div>
+  <h1>Hold off</h1>
+  <p class="why">The ground is losing more water than it gets. Nothing unusual — the rains here rarely start this early.</p>
+  <div class="countdown">
+    <div class="num">24<small>days</small></div>
+    <div class="txt">until the rains here<br>normally break, around<br><b>27 November</b></div>
+  </div>
+ </div>
+
+ <div class="tiles">
+  <div class="tile"><div class="label">Water balance</div>
+    <div class="v neg">−85 mm</div><div class="n">last 14 days<br>8 mm rain, 93 mm lost to sun</div></div>
+  <div class="tile"><div class="label">Next rain</div>
+    <div class="v">9 Nov</div><div class="n">18 mm expected<br>70% chance</div></div>
+  <div class="tile"><div class="label">Soil at 6 cm</div>
+    <div class="v warn">36 °C</div><div class="n">too hot for sowing<br>maize prefers under 30</div></div>
+  <div class="tile"><div class="label">Next 16 days</div>
+    <div class="v neg">−55 mm</div><div class="n">46 mm rain forecast<br>101 mm lost to sun</div></div>
+ </div>
+
+ <details><summary>What would change my answer</summary><div class="disc">
+  About 35 mm over three days, soil below 30 °C, and no week-long dry spell after it.
+  The 9 November rain gets you a third of the way.</div></details>
+ <details><summary>Rain, day by day</summary><div class="disc">Chart of the last 14 days and next 16.</div></details>
+ <details><summary>This season against the last 30</summary><div class="disc">Rain so far compared with every year since 1991.</div></details>
+ <details><summary>How this is worked out</summary><div class="disc">
+  Open-Meteo forecast and ERA5 history. Rain against FAO reference evapotranspiration.</div></details>
+ <p class="foot"><b>Guidance only.</b> Follow your extension officer.<br>Forecast issued today · Open-Meteo (CC BY 4.0)</p>
+</div>
