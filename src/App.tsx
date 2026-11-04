@@ -5,6 +5,7 @@ import { monthlyNormals, nextMonths } from './lib/climate'
 import { describePlace, isPilotPlace, PILOT_COUNTRY } from './lib/places'
 import { isTabId, type TabId } from './lib/tabs'
 import { forecastSource, historySource, seasonalSource } from './lib/sources'
+import { LearnScreen } from './screens/LearnScreen'
 import { SeasonScreen } from './screens/SeasonScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { TodayScreen } from './screens/TodayScreen'
@@ -117,6 +118,7 @@ export default function App() {
                 now={now}
               />
             )}
+            {tab === 'learn' && <LearnScreen />}
             {tab === 'settings' && (
               <SettingsScreen rule={rule} units={units} onRuleChange={setRule} onUnitsChange={setUnits} />
             )}

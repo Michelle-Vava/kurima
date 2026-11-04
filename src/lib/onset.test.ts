@@ -28,37 +28,37 @@ describe('evaluateSignal', () => {
   const bone = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
   it('says plant after onset rain with no dry spell ahead', () => {
-    const r = evaluateSignal(wetWeek, showers, 120)
+    const r = evaluateSignal({ recentRain: wetWeek, forecastRain: showers, monthNormalMm: 120 })
     expect(r.signal).toBe('plant')
     expect(r.recentWetMm).toBe(23)
   })
 
   it('says wait when onset rain is followed by a forecast dry spell', () => {
-    const r = evaluateSignal(wetWeek, bone, 120)
+    const r = evaluateSignal({ recentRain: wetWeek, forecastRain: bone, monthNormalMm: 120 })
     expect(r.signal).toBe('wait')
     expect(r.forecastDrySpell).toBe(10)
   })
 
   it('says wait when it is dry now but heavy rain is forecast', () => {
-    const r = evaluateSignal([0, 0, 0, 0, 0, 0, 0], [0, 12, 10, 4, 1, 2, 3], 120)
+    const r = evaluateSignal({ recentRain: [0, 0, 0, 0, 0, 0, 0], forecastRain: [0, 12, 10, 4, 1, 2, 3], monthNormalMm: 120 })
     expect(r.signal).toBe('wait')
     expect(r.forecastWetMm).toBe(26)
   })
 
   it('says dry when there is no rain now or in the forecast', () => {
-    expect(evaluateSignal([0, 0, 0, 0, 0, 0, 0], bone, 120).signal).toBe('dry')
+    expect(evaluateSignal({ recentRain: [0, 0, 0, 0, 0, 0, 0], forecastRain: bone, monthNormalMm: 120 }).signal).toBe('dry')
   })
 
   it('never says plant outside the rainy season', () => {
-    const r = evaluateSignal(wetWeek, showers, 10)
+    const r = evaluateSignal({ recentRain: wetWeek, forecastRain: showers, monthNormalMm: 10 })
     expect(r.signal).toBe('wait')
     expect(r.reasons[0]).toContain('outside the usual rainy season')
   })
 
   it('respects a custom local rule', () => {
     const strict = { ...DEFAULT_RULE, wetMm: 30, wetDays: 7 } // the week only had 25 mm
-    expect(evaluateSignal(wetWeek, showers, 120).signal).toBe('plant')
-    expect(evaluateSignal(wetWeek, showers, 120, strict).signal).toBe('dry')
+    expect(evaluateSignal({ recentRain: wetWeek, forecastRain: showers, monthNormalMm: 120 }).signal).toBe('plant')
+    expect(evaluateSignal({ recentRain: wetWeek, forecastRain: showers, monthNormalMm: 120 }, strict).signal).toBe('dry')
   })
 })
 
@@ -79,27 +79,27 @@ describe('evaluateSignal with too little data', () => {
   const wetWeek = [0, 0, 0, 2, 9, 8, 6]
 
   it('never says plant on an empty forecast', () => {
-    const r = evaluateSignal(wetWeek, [], 120)
+    const r = evaluateSignal({ recentRain: wetWeek, forecastRain: [], monthNormalMm: 120 })
     expect(r.signal).toBe('unknown')
     expect(r.reasons.join(' ')).toContain('0 days of forecast')
   })
 
   it('needs a forecast at least as long as the dry spell it checks for', () => {
     const sixDays = [3, 3, 3, 3, 3, 3]
-    expect(evaluateSignal(wetWeek, sixDays, 120).signal).toBe('unknown')
-    expect(evaluateSignal(wetWeek, [...sixDays, 3], 120).signal).toBe('plant')
+    expect(evaluateSignal({ recentRain: wetWeek, forecastRain: sixDays, monthNormalMm: 120 }).signal).toBe('unknown')
+    expect(evaluateSignal({ recentRain: wetWeek, forecastRain: [...sixDays, 3], monthNormalMm: 120 }).signal).toBe('plant')
     const shortRule = { ...DEFAULT_RULE, drySpellDays: 5 }
-    expect(evaluateSignal(wetWeek, sixDays, 120, shortRule).signal).toBe('plant')
+    expect(evaluateSignal({ recentRain: wetWeek, forecastRain: sixDays, monthNormalMm: 120 }, shortRule).signal).toBe('plant')
   })
 
   it('needs at least the onset window of completed days', () => {
-    const r = evaluateSignal([12, 12], [3, 3, 3, 3, 3, 3, 3], 120)
+    const r = evaluateSignal({ recentRain: [12, 12], forecastRain: [3, 3, 3, 3, 3, 3, 3], monthNormalMm: 120 })
     expect(r.signal).toBe('unknown')
     expect(r.reasons[0]).toContain('2 completed days')
   })
 
   it('reports every missing input at once', () => {
-    expect(evaluateSignal([], [], 120).reasons).toHaveLength(2)
+    expect(evaluateSignal({ recentRain: [], forecastRain: [], monthNormalMm: 120 }).reasons).toHaveLength(2)
   })
 })
 
@@ -111,7 +111,7 @@ describe('plural', () => {
   })
   it('is used in the dry-spell reason', () => {
     const oneDryDay = [5, 5, 5, 0, 5, 5, 5]
-    const r = evaluateSignal([0, 0, 0, 2, 9, 8, 6], oneDryDay, 120, { ...DEFAULT_RULE, drySpellDays: 1 })
+    const r = evaluateSignal({ recentRain: [0, 0, 0, 2, 9, 8, 6], forecastRain: oneDryDay, monthNormalMm: 120 }, { ...DEFAULT_RULE, drySpellDays: 1 })
     expect(r.reasons.join(' ')).toContain('1 dry day in a row')
   })
 })

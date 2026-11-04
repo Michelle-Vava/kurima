@@ -242,3 +242,35 @@ footer p { margin: 4px 0; }
 }
 .sources { margin: 0; padding-left: 18px; line-height: 1.7; font-size: 14px; }
 .rule-grid select { font: inherit; padding: 8px; border: 1px solid var(--line); border-radius: 10px; background: var(--card); color: var(--ink); }
+
+/* Stage 1: cautions and the honest outlook */
+.cautions { margin-top: 14px; padding: 12px 14px; border-radius: 12px; background: var(--zone); }
+.cautions.marginal { background: #d99a1e1f; border: 1px solid var(--maize); }
+.caution-head { margin: 0 0 6px; font-size: 13px; font-weight: 700; }
+.cautions ul { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.55; color: var(--muted); }
+.stats .bad { color: var(--dry); }
+.stats .good { color: var(--leaf); }
+.tercile.lean { gap: 6px; }
+.tercile.lean > div {
+  flex: 1; text-align: center; padding: 10px 4px; border-radius: 10px;
+  background: var(--zone); color: var(--muted); font-size: 13px; font-weight: 600;
+}
+.tercile.lean > .on { color: #fff; }
+.tercile.lean > .t-below.on { background: var(--dry); }
+.tercile.lean > .t-near.on { background: var(--maize); }
+.tercile.lean > .t-above.on { background: var(--leaf); }
+
+/* Learn */
+.card.learn { padding: 0; }
+.card.learn summary {
+  padding: 15px 16px; font-size: 15px; font-weight: 600; cursor: pointer;
+  display: flex; justify-content: space-between; align-items: center; gap: 10px; list-style: none;
+}
+.card.learn summary::-webkit-details-marker { display: none; }
+.card.learn summary::after { content: '▾'; color: var(--muted); font-size: 13px; }
+.card.learn[open] summary { border-bottom: 1px solid var(--line); }
+.disclosure { padding: 14px 16px 16px; }
+.disclosure p { margin: 0 0 11px; font-size: 14px; line-height: 1.6; color: var(--muted); }
+.disclosure p:last-child { margin-bottom: 0; }
+.disclosure .in-app { color: var(--ink); background: var(--zone); padding: 11px 13px; border-radius: 10px; }
+.tabs .tab { padding: 10px 6px; font-size: 13px; }

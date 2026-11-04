@@ -33,6 +33,14 @@ export function SignalCard({ result, soilMoisture, units, children }: Props) {
           <div><span>{formatRain(result.recentWetMm, units.rain)}</span>wettest recent spell (modelled)</div>
           <div><span>{formatRain(result.forecastWetMm, units.rain)}</span>wettest forecast spell</div>
           <div><span>{result.forecastDrySpell} {plural(result.forecastDrySpell, 'day')}</span>longest dry run ahead</div>
+          {result.forecastWater && (
+            <div>
+              <span className={result.forecastWater.netMm < 0 ? 'bad' : 'good'}>
+                {result.forecastWater.netMm > 0 ? '+' : ''}{formatRain(result.forecastWater.netMm, units.rain)}
+              </span>
+              rain minus what the sun takes, ahead
+            </div>
+          )}
           {soilMoisture !== null && (
             <div><span>{Math.round(soilMoisture * 100)}%</span>soil moisture (9–27 cm)</div>
           )}
@@ -42,6 +50,15 @@ export function SignalCard({ result, soilMoisture, units, children }: Props) {
       <ul className="reasons">
         {result.reasons.map((r) => <li key={r}>{r}</li>)}
       </ul>
+
+      {result.cautions.length > 0 && (
+        <div className={`cautions${result.confidence === 'marginal' ? ' marginal' : ''}`} data-testid="cautions">
+          <p className="caution-head">
+            {result.confidence === 'marginal' ? 'Conditions are marginal' : 'Worth knowing'}
+          </p>
+          <ul>{result.cautions.map((c) => <li key={c}>{c}</li>)}</ul>
+        </div>
+      )}
       {children}
     </section>
   )

@@ -46,16 +46,37 @@ alarming or routine.
 
 ---
 
-## Stage 1 — Make the answer right
+## Stage 1 — Make the answer right ✅ *(3 November 2026)*
 
 *Roadmap: Milestone 1 Phase 4 items 1–4.*
 
-- [ ] **Water balance.** Judge onset on rain minus reference evapotranspiration, not rain alone.
-- [ ] **Soil temperature at 6 cm** as a germination gate.
-- [ ] **Forecast confidence** from rainfall probability, so "20 mm forecast" carries how likely.
-- [ ] **Stop showing uncalibrated outlook percentages.** Show the lean only until Stage 4
-      calibrates it. "37% / 43% / 20%" is false precision we already admit to in a footnote.
-- [ ] Thresholds reviewed against FAO and AREX guidance before they ship.
+- [x] **Water balance.** Rain against reference evapotranspiration, as a ratio.
+- [x] **Soil temperature** at seeding depth as a germination check.
+- [x] **Forecast confidence** from rainfall probability.
+- [x] **Stop showing uncalibrated outlook percentages.** The outlook shows a lean only.
+- [x] **A way to tell whether any of it helps** — see [docs/validation.md](docs/validation.md).
+- [ ] Thresholds reviewed against FAO and AREX guidance. **Still open**; every constant in
+      `src/lib/agronomy.ts` is marked provisional.
+
+**What the evidence changed.** The plan was to make water balance a veto on the planting
+answer. Backtesting against 116 real onset events said no:
+
+- A −40 mm threshold looked excellent at Harare, where it was chosen, and missed two of three
+  bad starts at Gwanda. Tuning and testing on one district had hidden that.
+- The FAO-style rain-to-ET0 ratio generalises better but still only catches 7 of 10 false
+  starts, at 7 false alarms in 66 plant calls.
+- So it **colours the answer rather than overruling it**. Shipping it as a veto would have made
+  Kurima more confident and less right.
+- "Soil too hot to sow" came from a 35.8 °C midday surface spike. The daily mean at seeding
+  depth across all 116 events was 13.5–28.9 °C, so the heat gate will never fire in Zimbabwe.
+  It stays for East African altitude, and the claim was dropped from the interface.
+
+Net effect: of 38 starts followed by a crop-killing dry spell, 28 are blocked outright and 7
+more are warned about. 10 bad starts still get a plain "plant". Closing that gap is Stage 4.
+
+**Also shipped, unplanned:** a **Learn** screen explaining onset, false starts,
+evapotranspiration, dry spells, soil temperature, normals, outlook confidence and what
+"modelled" means — written for someone new to farming.
 
 **Why first.** It is the only work on this list where Kurima is currently capable of being
 wrong, and the failure mode is the expensive one: a false start kills the seed. Everything
@@ -142,8 +163,9 @@ invisible work on an app that already feels thin.
 
 ## Open questions
 
-- **Agronomic thresholds.** How much water balance, and what soil temperature, should gate a
-  planting signal for maize in Zimbabwe? Stage 1 needs a reviewed answer, not a plausible one.
+- **Agronomic thresholds.** Still the biggest open question. The ratio of 0.5 was chosen by
+  backtest, not by an agronomist, and it was chosen on the same four districts it was tested
+  on. It needs review against AREX guidance, and a hold-out set.
 - **Visual direction.** Three mockups in `docs/mockups/` — verdict-led, dashboard grid, and
   season-timeline-led. Stage 2 builds whichever is chosen.
 - **Redeploy.** Phase 1 and 3 are merged but not live.

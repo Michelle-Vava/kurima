@@ -52,6 +52,12 @@ export interface Weather {
   rain: number[]
   tempMax: number[]
   tempMin: number[]
+  /** FAO reference evapotranspiration: how much water the sun and wind take (mm/day). */
+  et0: number[]
+  /** Highest chance of rain on each day (%). */
+  rainProbability: number[]
+  /** Daily mean soil temperature at seeding depth, 0–7 cm (°C). */
+  soilTempC: (number | null)[]
   /** Latest modelled soil moisture at 9–27 cm, in m³/m³. */
   soilMoisture: number | null
 }
@@ -60,7 +66,8 @@ export interface Weather {
 export async function fetchWeather(lat: number, lon: number, signal?: AbortSignal): Promise<Weather> {
   const url =
     `${FORECAST}?latitude=${lat}&longitude=${lon}` +
-    `&daily=precipitation_sum,temperature_2m_max,temperature_2m_min` +
+    `&daily=precipitation_sum,temperature_2m_max,temperature_2m_min,` +
+    `et0_fao_evapotranspiration,precipitation_probability_max,soil_temperature_0_to_7cm_mean` +
     `&hourly=soil_moisture_9_to_27cm&past_days=14&forecast_days=16&timezone=auto`
   const d = await getJson(url, signal)
 
@@ -86,6 +93,9 @@ export async function fetchWeather(lat: number, lon: number, signal?: AbortSigna
     rain: (d.daily.precipitation_sum as (number | null)[]).map((v) => v ?? 0),
     tempMax: d.daily.temperature_2m_max,
     tempMin: d.daily.temperature_2m_min,
+    et0: (d.daily.et0_fao_evapotranspiration as (number | null)[] | undefined)?.map((v) => v ?? 0) ?? [],
+    rainProbability: (d.daily.precipitation_probability_max as (number | null)[] | undefined)?.map((v) => v ?? 0) ?? [],
+    soilTempC: (d.daily.soil_temperature_0_to_7cm_mean as (number | null)[] | undefined) ?? [],
     soilMoisture,
   }
 }

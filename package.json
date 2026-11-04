@@ -15,7 +15,8 @@
     "typecheck": "tsc -b",
     "e2e": "node scripts/run-e2e.mjs",
     "e2e:ui": "node scripts/run-e2e.mjs --ui",
-    "screenshots": "node scripts/screenshots.mjs"
+    "screenshots": "node scripts/screenshots.mjs",
+    "explain": "EXPLAIN=1 vitest run backtest"
   },
   "dependencies": {
     "react": "^19.2.8",

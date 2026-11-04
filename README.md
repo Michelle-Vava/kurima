@@ -39,6 +39,13 @@ Kurima has no login and no backend. You pick a district or search for a town, an
 
 By default Kurima treats the rains as started when **20 mm falls within 3 days** and the forecast shows **no dry spell of 7 days or more** afterwards, and only during months that normally get rain. Countries publish their own rules (Zimbabwe, for example, advises 20 mm over 3 days or 25 mm in a week), so every threshold can be changed in the app.
 
+**How good is the advice?** Replayed over 116 real onset events at four Zimbabwe districts
+(1991–2019), the rule blocks 28 of the 38 starts that were followed by a crop-killing dry spell
+and warns about 7 more. It also tells 10 farmers to plant who would have been caught out. That
+is better than nothing and not yet good enough to rely on — see
+[docs/validation.md](docs/validation.md) for what is and is not checked, and `npm run explain`
+to see the scorecard yourself.
+
 Kurima says **"Not enough data"** rather than guessing when the forecast is shorter than the dry spell it checks for, and it hides the recommendation when the cached forecast is two or more days old. Today's rain counts as forecast, not as rain already fallen, because the day isn't over. Past days are modelled estimates from archived forecasts, not rain-gauge readings, and are labelled as such.
 
 > **Guidance only.** Always follow your national meteorological service and agricultural extension officers.
@@ -51,7 +58,7 @@ Kurima says **"Not enough data"** rather than guessing when the forecast is shor
 |---|---|
 | App | React 19 + TypeScript + Vite |
 | Offline | vite-plugin-pwa (service worker caches the app and recent weather) |
-| Tests | Vitest (unit, the maths) and Playwright (end-to-end, with Open-Meteo faked) |
+| Tests | Vitest (unit, property and backtest) and Playwright (end-to-end, with Open-Meteo faked) |
 | Units | Rain in mm or inches, temperature in °C or °F, chosen on the device |
 | CI | GitHub Actions: type-check, lint, unit tests, build, Playwright |
 | Data | [Open-Meteo](https://open-meteo.com/) forecast, historical (ERA5), seasonal (ECMWF) and geocoding APIs |

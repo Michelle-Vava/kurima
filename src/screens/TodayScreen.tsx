@@ -42,7 +42,19 @@ export function TodayScreen({ weather, monthNormalMm, rule, units, now }: Props)
   }
 
   const { recent, forecast } = splitAtToday(w.rain, w.todayIndex)
-  const signal = evaluateSignal(recent, forecast, monthNormalMm, rule)
+  const et0 = splitAtToday(w.et0, w.todayIndex)
+  const signal = evaluateSignal(
+    {
+      recentRain: recent,
+      forecastRain: forecast,
+      monthNormalMm,
+      recentEt0: w.et0.length > 0 ? et0.recent : undefined,
+      forecastEt0: w.et0.length > 0 ? et0.forecast : undefined,
+      soilTempC: w.soilTempC[w.todayIndex] ?? null,
+      rainProbability: w.rainProbability.slice(w.todayIndex),
+    },
+    rule,
+  )
   const tMax = w.tempMax?.[w.todayIndex]
   const tMin = w.tempMin?.[w.todayIndex]
 

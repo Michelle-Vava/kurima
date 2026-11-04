@@ -16,9 +16,9 @@ interface Props {
 }
 
 export function OutlookCard({ outlook, months, memberCount, units, children }: Props) {
-  const pct = (p: number) => Math.round(p * 100)
-  const leaning =
-    outlook.below > 0.45 ? 'drier than normal' : outlook.above > 0.45 ? 'wetter than normal' : 'close to normal'
+  const lean: 'below' | 'near' | 'above' =
+    outlook.below > 0.45 ? 'below' : outlook.above > 0.45 ? 'above' : 'near'
+  const leaning = { below: 'drier than normal', above: 'wetter than normal', near: 'close to normal' }[lean]
 
   return (
     <section className="card" data-testid="outlook">
@@ -27,19 +27,19 @@ export function OutlookCard({ outlook, months, memberCount, units, children }: P
         Leaning <strong>{leaning}</strong>. Normal for these months is about {formatRain(outlook.normalMm, units.rain)};
         the forecast median is {formatRain(outlook.forecastMedianMm, units.rain)}.
       </p>
-      <div className="tercile" role="img" aria-label={`${pct(outlook.below)}% below, ${pct(outlook.near)}% near, ${pct(outlook.above)}% above normal`}>
-        <div className="t-below" style={{ flexGrow: outlook.below || 0.001 }}>{pct(outlook.below) >= 12 && `${pct(outlook.below)}%`}</div>
-        <div className="t-near" style={{ flexGrow: outlook.near || 0.001 }}>{pct(outlook.near) >= 12 && `${pct(outlook.near)}%`}</div>
-        <div className="t-above" style={{ flexGrow: outlook.above || 0.001 }}>{pct(outlook.above) >= 12 && `${pct(outlook.above)}%`}</div>
-      </div>
-      <div className="legend">
-        <span><i className="sw below" /> drier ({pct(outlook.below)}%)</span>
-        <span><i className="sw near" /> normal ({pct(outlook.near)}%)</span>
-        <span><i className="sw above" /> wetter ({pct(outlook.above)}%)</span>
+      {/* The model is not bias-corrected against its own hindcasts, so the
+          tercile split is not a real probability. Showing "37%" would be false
+          precision; the direction is the most that can honestly be claimed
+          until Milestone 1 Phase 2 calibrates it. */}
+      <div className="tercile lean" role="img" aria-label={`Leaning ${leaning}`}>
+        <div className={`t-below${lean === 'below' ? ' on' : ''}`}>drier</div>
+        <div className={`t-near${lean === 'near' ? ' on' : ''}`}>normal</div>
+        <div className={`t-above${lean === 'above' ? ' on' : ''}`}>wetter</div>
       </div>
       <p className="fine">
-        Based on {memberCount} runs of the ECMWF seasonal model compared with 1991–2020 rainfall here. Not yet
-        bias-corrected, so use it as a rough guide alongside your national weather service.
+        Based on {memberCount} runs of the ECMWF seasonal model against 1991–2020 rainfall here. The model has not
+        been checked against its own past forecasts yet, so Kurima shows only which way it leans, not a percentage.
+        Use it alongside your national weather service.
       </p>
       {children}
     </section>

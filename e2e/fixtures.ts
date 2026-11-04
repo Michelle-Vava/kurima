@@ -37,6 +37,12 @@ export interface ForecastOptions {
   past?: number[]
   /** Rain for today onwards. Padded with 0 at the end if short. */
   forecast?: number[]
+  /** Evapotranspiration per day (mm). Same for every day. Omit for none. */
+  et0PerDay?: number
+  /** Daily mean soil temperature at 0–7 cm (°C). */
+  soilTempC?: number
+  /** Chance of rain per day (%). */
+  rainProbability?: number
 }
 
 /** Response for api.open-meteo.com/v1/forecast with past_days=14&forecast_days=16. */
@@ -64,6 +70,9 @@ export function forecastResponse(o: ForecastOptions = {}) {
       precipitation_sum: rain,
       temperature_2m_max: rain.map(() => 28),
       temperature_2m_min: rain.map(() => 16),
+      et0_fao_evapotranspiration: o.et0PerDay === undefined ? rain.map(() => 0) : rain.map(() => o.et0PerDay!),
+      precipitation_probability_max: rain.map(() => o.rainProbability ?? 80),
+      soil_temperature_0_to_7cm_mean: rain.map(() => o.soilTempC ?? 22),
     },
     hourly: { time: [], soil_moisture_9_to_27cm: [] },
   }
@@ -146,7 +155,7 @@ export async function pickDistrict(page: Page, name = 'Harare') {
 }
 
 /** Move to a tab and wait for it to become current. */
-export async function goToTab(page: Page, label: 'Today' | 'Season' | 'Settings') {
+export async function goToTab(page: Page, label: 'Today' | 'Season' | 'Learn' | 'Settings') {
   const tab = page.getByRole('button', { name: label, exact: true })
   await tab.click()
   await expect(tab).toHaveAttribute('aria-current', 'page')
