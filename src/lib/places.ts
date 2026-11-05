@@ -27,9 +27,22 @@ export const PILOT_DISTRICTS: Place[] = [
   { name: 'Gwanda', region: 'Matabeleland South', country: PILOT_COUNTRY, countryCode: PILOT_COUNTRY_CODE, latitude: -20.93622, longitude: 29.00698 },
 ]
 
+/**
+ * How far Kurima's advice can be trusted at a place.
+ *
+ * `checked`: the planting rule is being validated against past seasons here.
+ * `weather-only`: the forecast is right, but the rule has not been reviewed
+ * for this place, so the plant-or-wait answer is a rough guide.
+ */
+export type Coverage = 'checked' | 'weather-only'
+
+export function coverageOf(place: Place): Coverage {
+  return place.countryCode === PILOT_COUNTRY_CODE ? 'checked' : 'weather-only'
+}
+
 /** Is this somewhere Kurima's planting rule has been checked? */
 export function isPilotPlace(place: Place): boolean {
-  return place.countryCode === PILOT_COUNTRY_CODE
+  return coverageOf(place) === 'checked'
 }
 
 export function placeKey(place: Place): string {

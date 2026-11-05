@@ -84,7 +84,10 @@ export function forecastResponse(o: ForecastOptions = {}) {
  * so every month counts as rainy season; 0 makes everywhere a dry season.
  */
 export function historyResponse(mmPerDay = 2) {
-  const time = dateRange(new Date(1991, 0, 1, 12), 30 * 365 + 7) // through 2020-12-31 (7 leap days)
+  // 1991 through yesterday, so both the thirty-year climate and this season so far are served.
+  const start = new Date(1991, 0, 1, 12)
+  const days = Math.round((daysFromToday(-1).getTime() - start.getTime()) / 86_400_000) + 1
+  const time = dateRange(start, days)
   return {
     timezone: 'Africa/Harare',
     daily: { time, precipitation_sum: time.map(() => mmPerDay) },
@@ -103,6 +106,16 @@ export function seasonalResponse(today = daysFromToday(0), mmPerDay = 1) {
       precipitation_sum_member03: time.map(() => mmPerDay * 0.5),
     },
   }
+}
+
+export const KANO = { name: 'Kano', country: 'Nigeria', country_code: 'NG', admin1: 'Kano', latitude: 12.0, longitude: 8.52 }
+
+/** Pick a place through the Africa-wide search (needs a geocode fake). */
+export async function searchAndPick(page: Page, query: string, resultName: RegExp) {
+  await page.goto('/')
+  await page.getByText('Somewhere else in Africa').click()
+  await page.getByLabel('Search a town or village').fill(query)
+  await page.getByRole('listbox').getByRole('button', { name: resultName }).click()
 }
 
 /** Results for the Africa-wide search box. */
@@ -127,9 +140,22 @@ export async function fakeOpenMeteo(page: Page, fake: FakeWeather = {}) {
   await page.route(/^https:\/\/api\.open-meteo\.com\/v1\/forecast/, (route) =>
     route.fulfill(json(fake.forecast ?? forecastResponse())),
   )
-  await page.route(/^https:\/\/archive-api\.open-meteo\.com\//, (route) =>
-    route.fulfill(json(fake.history ?? historyResponse())),
-  )
+  // The archive is asked for two ranges: thirty years for the climate (only
+  // for places without a bundled pack) and this season so far. Honour the
+  // dates in the request, as the real API does, so the second call does not
+  // hand back thirty years as "this season".
+  await page.route(/^https:\/\/archive-api\.open-meteo\.com\//, (route) => {
+    const u = new URL(route.request().url())
+    const from = u.searchParams.get('start_date') ?? '0000'
+    const to = u.searchParams.get('end_date') ?? '9999'
+    const full = fake.history ?? historyResponse()
+    const keep = full.daily.time.map((d) => d >= from && d <= to)
+    const daily = {
+      time: full.daily.time.filter((_, i) => keep[i]),
+      precipitation_sum: full.daily.precipitation_sum.filter((_, i) => keep[i]),
+    }
+    route.fulfill(json({ ...full, daily }))
+  })
   await page.route(/^https:\/\/seasonal-api\.open-meteo\.com\//, (route) =>
     route.fulfill(json(fake.seasonal ?? seasonalResponse())),
   )
@@ -155,7 +181,7 @@ export async function pickDistrict(page: Page, name = 'Harare') {
 }
 
 /** Move to a tab and wait for it to become current. */
-export async function goToTab(page: Page, label: 'Today' | 'Season' | 'Learn' | 'Settings') {
+export async function goToTab(page: Page, label: 'Today' | 'Season' | 'Settings') {
   const tab = page.getByRole('button', { name: label, exact: true })
   await tab.click()
   await expect(tab).toHaveAttribute('aria-current', 'page')

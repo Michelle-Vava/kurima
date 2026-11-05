@@ -17,7 +17,7 @@ Kurima turns free satellite and weather-model data into plain guidance for one d
 
 | | What you see | Data |
 |---|---|---|
-| 🌱 **Plant-or-wait signal** | Plant, wait or too dry, with the reasons, based on recent rain, the 16-day forecast and dry spells ahead | Open-Meteo forecast |
+| 🌱 **Plant-or-wait signal** | Plant, wait or too dry, with the reasons; marked *marginal* when the ground loses more water to the sun than it gets; and when the rains usually break here | Open-Meteo forecast and ERA5 history |
 | 🌧️ **Rain: last 2 weeks + next 16 days** | Daily bars, recent (modelled) vs forecast, soil moisture | Open-Meteo forecast (past days are archived model data, not rain gauges) |
 | 📅 **Season outlook (next 3 months)** | Rough chance of a drier, normal or wetter season than usual (not yet calibrated) | ECMWF seasonal ensemble (51 runs) vs 1991–2020 history |
 | 📊 **Normal rainfall here** | Average rain for every month, wettest month, length of the rainy season | ERA5 reanalysis, 1991–2020 |
@@ -26,8 +26,9 @@ Kurima turns free satellite and weather-model data into plain guidance for one d
 
 **Where it's checked:** the planting rule is being validated for eight Zimbabwean districts first — Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo and Gwanda, spanning the wetter north-east maize belt to the drier south-west. Search still reaches any town in Africa, and anywhere outside Zimbabwe is clearly marked as not yet checked.
 
-**Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. See [BUILD-ORDER.md](BUILD-ORDER.md) for what is being built next and why, and
-[ROADMAP.md](ROADMAP.md) for the longer ambition.
+**Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. Three documents: this one is how to run it; [BUILD-ORDER.md](BUILD-ORDER.md) is what comes next,
+why, and how we judge it; [ROADMAP.md](ROADMAP.md) is the whole ambition. New to the farming
+ideas? [docs/how-it-works.md](docs/how-it-works.md) explains them with charts from real data.
 
 ---
 
@@ -39,12 +40,10 @@ Kurima has no login and no backend. You pick a district or search for a town, an
 
 By default Kurima treats the rains as started when **20 mm falls within 3 days** and the forecast shows **no dry spell of 7 days or more** afterwards, and only during months that normally get rain. Countries publish their own rules (Zimbabwe, for example, advises 20 mm over 3 days or 25 mm in a week), so every threshold can be changed in the app.
 
-**How good is the advice?** Replayed over 116 real onset events at four Zimbabwe districts
-(1991–2019), the rule blocks 28 of the 38 starts that were followed by a crop-killing dry spell
-and warns about 7 more. It also tells 10 farmers to plant who would have been caught out. That
-is better than nothing and not yet good enough to rely on — see
-[docs/validation.md](docs/validation.md) for what is and is not checked, and `npm run explain`
-to see the scorecard yourself.
+**How good is the advice?** Better than nothing and not yet good enough to rely on. Replayed
+over 116 real onset events, the rule blocks 28 of 38 crop-killing starts and warns about 7 more;
+10 still get a plain "plant". What is and is not checked is in
+[BUILD-ORDER.md](BUILD-ORDER.md#how-we-judge-it); `npm run explain` prints the scorecard.
 
 Kurima says **"Not enough data"** rather than guessing when the forecast is shorter than the dry spell it checks for, and it hides the recommendation when the cached forecast is two or more days old. Today's rain counts as forecast, not as rain already fallen, because the day isn't over. Past days are modelled estimates from archived forecasts, not rain-gauge readings, and are labelled as such.
 
@@ -70,6 +69,10 @@ src/
 ├── lib/                # No React in here: pure logic and data access, all tested
 │   ├── onset.ts        # Plant-or-wait signal, incl. "not enough data"
 │   ├── climate.ts      # Monthly normals, complete-season totals, tercile outlook, dry-season check
+│   ├── water.ts        # Rain against what the sun takes back
+│   ├── season.ts       # When the rains usually break; this season vs past ones
+│   ├── climatePack.ts  # Thirty years of history, derived once; packs/ holds the pilot districts
+│   ├── agronomy.ts     # Every threshold, with its reasoning, all provisional
 │   ├── freshness.ts    # Age of a cached forecast and when it is too old to use
 │   ├── units.ts        # Rain and temperature conversions
 │   ├── places.ts       # Zimbabwe pilot districts and the "checked here?" test
@@ -99,6 +102,8 @@ npm run build      # production build + service worker
 npx playwright install chromium   # once
 npm run e2e        # end-to-end tests against the dev server, weather faked
 npm run screenshots # refresh the README screenshots from live data
+npm run explain     # the backtest scorecard: how often the advice would have been right
+npx tsx scripts/build-packs.ts   # rebuild the pilot districts' climate packs
 ```
 
 `npm run e2e` and `npm run screenshots` each start their own dev server on a free port and stop it when they finish, so they never clash with a server you already have running.

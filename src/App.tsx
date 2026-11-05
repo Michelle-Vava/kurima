@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Nav } from './components/Nav'
 import { PlacePicker } from './components/PlacePicker'
-import { monthlyNormals, nextMonths } from './lib/climate'
+import { nextMonths } from './lib/climate'
+import { localIsoDate } from './lib/freshness'
+import { addDays, seasonStart, seasonYearOf } from './lib/season'
 import { describePlace, isPilotPlace, PILOT_COUNTRY } from './lib/places'
 import { isTabId, type TabId } from './lib/tabs'
-import { forecastSource, historySource, seasonalSource } from './lib/sources'
-import { LearnScreen } from './screens/LearnScreen'
+import { climateSource, forecastSource, seasonRainSource, seasonalSource } from './lib/sources'
 import { SeasonScreen } from './screens/SeasonScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { TodayScreen } from './screens/TodayScreen'
@@ -37,20 +38,30 @@ function useHashTab(): [TabId, (tab: TabId) => void] {
 }
 
 export default function App() {
-  const { place, setPlace, units, setUnits, rule, setRule } = useApp()
+  const { place, setPlace, recent, units, setUnits, rule, setRule } = useApp()
   const [tab, setTab] = useHashTab()
   const [changing, setChanging] = useState(false)
 
   // Loaded once here rather than per screen, so switching tabs never refetches.
   const weather = useSource(forecastSource, place)
-  const history = useSource(historySource, place)
+  const climate = useSource(climateSource, place)
   const seasonal = useSource(seasonalSource, place)
 
   const now = useNow()
-  const normals = useMemo(
-    () => (history.status === 'ok' ? monthlyNormals(history.loaded.data) : null),
-    [history],
+  const today = localIsoDate(now)
+  const normals = climate.status === 'ok' ? climate.loaded.data.normals : null
+
+  // This season's rain so far, from the first day of the farming year to
+  // yesterday. The archive lags a few days; the forecast's completed days fill
+  // the gap in TodayScreen.
+  const startMonth = climate.status === 'ok' ? climate.loaded.data.startMonth : null
+  const seasonFrom = startMonth ? seasonStart(seasonYearOf(today, startMonth), startMonth) : null
+  const yesterday = addDays(today, -1)
+  const rainSource = useMemo(
+    () => (seasonFrom ? seasonRainSource(seasonFrom, yesterday) : null),
+    [seasonFrom, yesterday],
   )
+  const seasonRain = useSource(rainSource, place)
   // The outlook window only changes when the month does, so it is keyed on
   // the month rather than recomputed every time the clock ticks.
   const monthKey = `${now.getFullYear()}-${now.getMonth()}`
@@ -73,6 +84,7 @@ export default function App() {
       <main>
         {picking && (
           <PlacePicker
+            recent={recent}
             onSelect={(p) => {
               setPlace(p)
               setChanging(false)
@@ -103,6 +115,8 @@ export default function App() {
             {tab === 'today' && (
               <TodayScreen
                 weather={weather}
+                climate={climate}
+                seasonRain={seasonRain}
                 monthNormalMm={normals ? normals[now.getMonth()] : null}
                 rule={rule}
                 units={units}
@@ -111,14 +125,13 @@ export default function App() {
             )}
             {tab === 'season' && (
               <SeasonScreen
-                history={history}
+                climate={climate}
                 seasonal={seasonal}
                 outlookMonths={outlookMonths}
                 units={units}
                 now={now}
               />
             )}
-            {tab === 'learn' && <LearnScreen />}
             {tab === 'settings' && (
               <SettingsScreen rule={rule} units={units} onRuleChange={setRule} onUnitsChange={setUnits} />
             )}

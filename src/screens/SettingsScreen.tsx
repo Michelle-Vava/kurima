@@ -2,7 +2,7 @@ import { RuleSettings } from '../components/RuleSettings'
 import { UnitsSettings } from '../components/UnitsSettings'
 import type { OnsetRule } from '../lib/onset'
 import { PILOT_COUNTRY } from '../lib/places'
-import { forecastSource, historySource, seasonalSource } from '../lib/sources'
+import { climateSource, forecastSource, seasonalSource } from '../lib/sources'
 import type { Units } from '../lib/units'
 
 interface Props {
@@ -12,7 +12,7 @@ interface Props {
   onUnitsChange: (units: Units) => void
 }
 
-const SOURCES = [forecastSource, historySource, seasonalSource]
+const SOURCES = [forecastSource, climateSource, seasonalSource]
 
 export function SettingsScreen({ rule, units, onRuleChange, onUnitsChange }: Props) {
   return (

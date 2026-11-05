@@ -1,20 +1,14 @@
 import { DataLabel } from '../components/DataLabel'
 import { NormalsChart } from '../components/NormalsChart'
 import { DrySeasonCard, OutlookCard } from '../components/OutlookCard'
-import {
-  isDrySeasonWindow,
-  monthlyNormals,
-  percentile,
-  seasonTotalsByYear,
-  tercileOutlook,
-  type DailySeries,
-} from '../lib/climate'
+import { isDrySeasonWindow, percentile, tercileOutlook } from '../lib/climate'
+import { windowTotals, type Climate } from '../lib/climatePack'
 import { memberTotals, type SeasonalForecast } from '../lib/openMeteo'
 import type { Units } from '../lib/units'
 import type { Async } from '../state/useSource'
 
 interface Props {
-  history: Async<DailySeries>
+  climate: Async<Climate>
   seasonal: Async<SeasonalForecast>
   outlookMonths: number[]
   units: Units
@@ -24,15 +18,15 @@ interface Props {
 /** At least this many past seasons before a tercile split means anything. */
 const MIN_SEASONS = 10
 
-export function SeasonScreen({ history, seasonal, outlookMonths, units, now }: Props) {
-  if (history.status === 'loading' || history.status === 'idle') {
+export function SeasonScreen({ climate, seasonal, outlookMonths, units, now }: Props) {
+  if (climate.status === 'loading' || climate.status === 'idle') {
     return <div className="card skeleton">Comparing with 30 years of history…</div>
   }
-  if (history.status === 'error') return <div className="card error">History unavailable: {history.message}</div>
+  if (climate.status === 'error') return <div className="card error">History unavailable: {climate.message}</div>
 
-  const hist = history.loaded
-  const normals = monthlyNormals(hist.data)
-  const past = seasonTotalsByYear(hist.data, outlookMonths)
+  const hist = climate.loaded
+  const normals = hist.data.normals
+  const past = windowTotals(hist.data, outlookMonths)
 
   return (
     <>

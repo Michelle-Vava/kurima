@@ -5,6 +5,8 @@ import { searchPlaces, type Place } from '../lib/openMeteo'
 interface Props {
   onSelect: (place: Place) => void
   onCancel?: () => void
+  /** Places chosen before, most recent first. */
+  recent?: Place[]
 }
 
 /**
@@ -12,7 +14,7 @@ interface Props {
  * pilot districts are offered up front; search still reaches any town in
  * Africa, and anywhere outside the pilot is flagged on the screen itself.
  */
-export function PlacePicker({ onSelect, onCancel }: Props) {
+export function PlacePicker({ onSelect, onCancel, recent = [] }: Props) {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Place[]>([])
   const [open, setOpen] = useState(false)
@@ -60,6 +62,19 @@ export function PlacePicker({ onSelect, onCancel }: Props) {
   return (
     <div className="search" ref={boxRef} data-testid="place-picker">
       <h2 className="picker-title">Choose your district</h2>
+      {recent.length > 0 && (
+        <div className="recent" data-testid="recent">
+          <span className="label">Recent</span>
+          <div className="chips">
+            {recent.map((p) => (
+              <button key={`${p.latitude},${p.longitude}`} className="chip" onClick={() => choose(p)}>
+                <strong>{p.name}</strong>
+                <span>{[p.region && p.region !== p.name ? p.region : null, p.country].filter(Boolean).join(', ')}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       <div className="chips">
         {PILOT_DISTRICTS.map((p) => (
           <button

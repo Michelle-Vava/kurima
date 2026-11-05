@@ -1,11 +1,17 @@
 # Kurima build order
 
-[ROADMAP.md](ROADMAP.md) is the ambition: everything Kurima should eventually do, grouped by
-subject. It stays as it is. This file is the decision about **what to build next and why**, and
-the two will not match — the roadmap groups work by topic, and topics are not the order you
-build them in.
+Three documents, three jobs:
 
-Last reviewed **3 November 2026**.
+| File | Job |
+|---|---|
+| [README.md](README.md) | What Kurima is and how to run it. |
+| **BUILD-ORDER.md** (this file) | What is being built next, why in that order, and how we judge whether it works. |
+| [ROADMAP.md](ROADMAP.md) | The whole ambition, grouped by subject. It is guidance, not sequence. |
+
+Plus one reference: [docs/how-it-works.md](docs/how-it-works.md) explains the farming ideas from
+scratch, with charts from real data.
+
+Last reviewed **4 November 2026**.
 
 ---
 
@@ -21,127 +27,81 @@ Four questions, in this order:
    where nothing improves for the person using the app.
 4. **How big is it?** Last, deliberately. Cheapness is a tiebreaker, not a reason.
 
-One standing constraint: **deepen before broadening.** Work that squeezes more out of the data
-Kurima already fetches beats work that adds a new source, a new screen or a new subject.
+Two standing constraints. **Deepen before broadening:** work that squeezes more out of the data
+Kurima already fetches beats a new source, screen or subject. **No unasked-for surfaces:** a new
+screen or section is agreed first, not shipped on initiative.
 
 ---
 
-## What we learned on 3 November 2026
+## What we learned, and what it changed
 
-Measured for Harare, not estimated. This is what reordered the plan.
+Measured for Harare, 3 November 2026.
 
 | Finding | Number | So what |
 |---|---|---|
-| Rain over the last 14 days | 7.5 mm | |
-| Evaporation (ET0) over the same 14 days | 92.7 mm | **The ground lost 85 mm net.** Kurima never looks at this. |
-| Next 16 days | 46 mm rain vs 101 mm ET0 | Still −55 mm. The coming rain does not turn it around. |
-| Biggest 3-day fall ahead | 18.6 mm | The onset threshold is 20 mm. **One slightly wetter storm triggers "plant"** into a fortnight that keeps losing water. |
-| Soil at 6 cm | 35.8 °C | Hot enough to hurt germination. Not read either. |
-| Typical onset here, 29 seasons | **27 November** (middle half 20 Nov – 9 Dec) | Today is 24 days early. Kurima says "too dry" with no hint that this is *completely normal for the date*. |
-| Derived climate pack vs raw history | 318 bytes vs 198,341 | 624× more data downloaded than used. |
-
-Two conclusions. The signal reads rainfall in isolation and can be wrong because of it. And the
-app withholds the one piece of context that makes its answer meaningful — whether "too dry" is
-alarming or routine.
+| Rain over 14 days vs water the sun took back | 7.5 mm in, 92.7 mm out | The ground lost 85 mm net. Kurima looked only at the 7.5 mm. |
+| Biggest 3-day fall in the forecast | 18.6 mm, threshold 20 | One wetter storm and the rule says "plant" into a fortnight still drying. |
+| Usual onset here, 29 seasons | 27 November | 3 November is 24 days early; "too dry" is routine, not alarming. The app did not say so. |
+| Derived climate pack vs raw history | 11 KB vs 198 KB | The Season screen downloaded 17× more than it used. |
 
 ---
 
-## Stage 1 — Make the answer right ✅ *(3 November 2026)*
+## Stage 1 — Make the answer right ✅ 3 Nov
 
-*Roadmap: Milestone 1 Phase 4 items 1–4.*
-
-- [x] **Water balance.** Rain against reference evapotranspiration, as a ratio.
-- [x] **Soil temperature** at seeding depth as a germination check.
-- [x] **Forecast confidence** from rainfall probability.
-- [x] **Stop showing uncalibrated outlook percentages.** The outlook shows a lean only.
-- [x] **A way to tell whether any of it helps** — see [docs/validation.md](docs/validation.md).
-- [ ] Thresholds reviewed against FAO and AREX guidance. **Still open**; every constant in
+- [x] Water balance: rain against what the sun takes, as a ratio.
+- [x] Soil temperature at seeding depth as a germination check.
+- [x] Forecast confidence from rainfall probability.
+- [x] The outlook shows a lean only; the uncalibrated percentages are gone.
+- [x] A way to tell whether any of it helps (see *How we judge it*, below).
+- [ ] Thresholds reviewed against FAO and AREX guidance. **Open.** Every constant in
       `src/lib/agronomy.ts` is marked provisional.
 
-**What the evidence changed.** The plan was to make water balance a veto on the planting
-answer. Backtesting against 116 real onset events said no:
+**What the evidence changed.** Water balance was going to veto a plant call. Replayed over 116
+real onset events it catches 7 of 10 false starts at 7 false alarms in 66 plant calls — a useful
+warning, too noisy to overrule the farmer — so it colours the answer instead. A fixed −40 mm
+threshold looked excellent at Harare, where it was chosen, and missed two of three bad starts at
+Gwanda; the ratio travels better. "Soil too hot to sow" came from a midday surface spike; the
+daily mean at seeding depth across all 116 events was 13.5–28.9 °C, so the claim was dropped.
 
-- A −40 mm threshold looked excellent at Harare, where it was chosen, and missed two of three
-  bad starts at Gwanda. Tuning and testing on one district had hidden that.
-- The FAO-style rain-to-ET0 ratio generalises better but still only catches 7 of 10 false
-  starts, at 7 false alarms in 66 plant calls.
-- So it **colours the answer rather than overruling it**. Shipping it as a veto would have made
-  Kurima more confident and less right.
-- "Soil too hot to sow" came from a 35.8 °C midday surface spike. The daily mean at seeding
-  depth across all 116 events was 13.5–28.9 °C, so the heat gate will never fire in Zimbabwe.
-  It stays for East African altitude, and the claim was dropped from the interface.
+A Learn screen was built here without being asked for and was removed on 4 November: adding
+explanation to the interface while the numbers under it are still being settled puts the cart
+before the horse. The content survives as `docs/how-it-works.md`, where it was wanted.
 
-Net effect: of 38 starts followed by a crop-killing dry spell, 28 are blocked outright and 7
-more are warned about. 10 bad starts still get a plain "plant". Closing that gap is Stage 4.
+## Stage 2 — Make it worth opening ◐ 4 Nov
 
-**Also shipped, unplanned:** a **Learn** screen explaining onset, false starts,
-evapotranspiration, dry spells, soil temperature, normals, outlook confidence and what
-"modelled" means — written for someone new to farming.
+- [x] **Typical onset date** from thirty years of history, and how many days away it is.
+      Harare: "the rains here usually break around 27 Nov, 23 days away; most years 21 Nov–10 Dec".
+- [x] **This season against past ones:** rain since the start of the farming year, ranked
+      against the same date in every past season. Fills the archive's few-day lag from the
+      forecast's completed days; stays silent unless 80% of the days are accounted for.
+- [ ] Dashboard layout and visual hierarchy. **Deferred by decision**, 4 Nov: the numbers come
+      first, the screen that leads with them after.
 
-**Why first.** It is the only work on this list where Kurima is currently capable of being
-wrong, and the failure mode is the expensive one: a false start kills the seed. Everything
-downstream also depends on it. The Stage 4 simulator scores *a rule* — build it before the rule
-is settled and it gets written twice. The Stage 2 dashboard displays *numbers* — design it
-before the numbers exist and it gets laid out twice.
+The farming year starts in the driest month of the normals (August for all eight pilot
+districts, January for Kano), so nothing is hard-coded per country.
 
-**Cost.** Low. Same endpoints, no new sources, pure functions in `src/lib/` with unit tests.
+## Stage 3 — Fast, and clear about place ◐ 4 Nov
 
----
-
-## Stage 2 — Make it worth opening
-
-*Roadmap: Milestone 1 Phase 4 items 5–7, plus Phase 2 items 8–9 pulled forward.*
-
-- [ ] **Typical onset date** from 30 years of history, and how far off it today is.
-- [ ] **Days until the window is likely to open**, so there is a reason to come back on a day.
-- [ ] **Dashboard layout**: the answer and the few numbers behind it first, everything else in
-      sections the farmer opens.
-- [ ] **Visual hierarchy**: the screen reads as a verdict, not a stack of equal cards.
-- [ ] **This season against past seasons** (collapsed).
-
-**Why second.** This is the "why would I open this" problem, and it is mostly *reorganising what
-we already have* rather than new features. The typical onset date is the clearest example: it
-needs no new data, just the daily history already downloaded, and it changes "Too dry to plant"
-into "Too dry, and that is normal — the rains here break around 27 November, 24 days away."
-
-**Note on sequencing.** Items 8 and 9 sit under Phase 2 in the roadmap, filed with the season
-maths. They do not need the simulator and should not wait for it.
-
----
-
-## Stage 3 — Fast, and clear about place
-
-*Roadmap: Milestone 1 Phase 4 item 8, Milestone 5 Phase 1.*
-
-- [ ] **Precomputed climate packs** for the pilot districts. Season opens instantly and offline.
-- [ ] **Coverage levels** as a real concept: *checked* vs *weather only*.
-- [ ] **One picker** — search and districts as the same control, not a list with a hidden fallback.
-- [ ] **Recent places**, for a farmer with two fields.
-
-**Why third.** None of it changes the answer, so it ranks below Stages 1 and 2. But the packs
-unblock Stage 4 (the simulator wants precomputed history anyway), and the picker is a real
-complaint about the app feeling like two products sharing a screen.
-
----
+- [x] **Climate packs** for the eight pilot districts, built by `npx tsx scripts/build-packs.ts`
+      through the same function the live path uses, so a pack can never disagree with it.
+      About 11 KB each, loaded one at a time, offline. Anywhere else the browser still derives
+      the same object from the live archive.
+- [x] **Coverage levels** as a real type: `checked` or `weather-only`.
+- [x] **Recent places**, four most recent, kept on the device.
+- [ ] One picker for districts and search together. **Deferred**: it is an interface change.
 
 ## Stage 4 — Prove it works
 
-*Roadmap: Milestone 1 Phase 2 items 1–6.*
-
 - [ ] Calibrate the season outlook against the model's own hindcasts.
-- [ ] Season simulator: replay every season since 1991, using only data available that day.
-- [ ] Score it: false starts, missed windows, seasons too short to finish.
-- [ ] Compare against planting on the first big storm, or on a fixed date.
-- [ ] Write the results up; run the simulator in CI so a change that worsens the score is caught.
+- [ ] Season simulator: replay every day of every season since 1991 with only the data
+      available that day, for all pilot districts, with a hold-out set.
+- [ ] Score false starts, missed windows and seasons too short to finish; compare against
+      planting on the first big storm or on a fixed date.
+- [ ] Write it up; run it in CI so a change that worsens the score fails the build.
 
-**Why last, and why it still matters.** This is the most important thing on the page and the
-least visible. Today "20 mm over 3 days" is an assumption nobody has tested. Until this exists,
-Kurima cannot honestly claim its advice beats a farmer's own judgement, and the README should
-keep saying so.
-
-It goes last because it measures the rule, so the rule must be settled first (Stage 1), and
-because a farmer sees nothing change while it is built. Doing it now would mean months of
-invisible work on an app that already feels thin.
+**Why last, and why it matters most.** Everything above is the material this stage judges. It
+goes last because it measures the rule, so the rule had to settle first, and because a farmer
+sees nothing change while it is built. The backtest below is its small ancestor.
 
 ---
 
@@ -149,23 +109,120 @@ invisible work on an app that already feels thin.
 
 | Work | Why it waits |
 |---|---|
-| **Bimodal seasons** (Phase 2 item 7) | Only matters where there are two rainy seasons. Zimbabwe has one. This is a prerequisite for East Africa, so it belongs with that country work, not here. |
-| **Country onset presets** (Phase 2 item 10) | A preset list of one is a list. Meaningful once there is a second country. |
-| **Rain map, compare two towns, what-if replay** (Phase 5) | New screens rather than better answers. The map also needs tiles, a new dependency. |
-| **Heat stress** (Phase 5 item 1) | Cheap and uses data we already fetch, but it matters at flowering, not at planting. Natural follow-on once Stage 1 lands. |
-| **Soil, fertiliser, seed** (Milestone 2) | New data source. Breaks "deepen before broadening". |
-| **Crop guides, pests** (Milestone 3) | New content needing expert review — a different kind of work from a different kind of person. |
-| **Storage, markets** (Milestone 4) | Different point in the season. Kurima has not earned the planting decision yet. |
-| **More countries** (Milestone 6) | Needs Stage 4 first. Expanding an unvalidated rule multiplies the risk rather than the value. |
-| **Languages, mobile app** (Milestone 7) | Translate the app once it is worth translating. |
+| Dashboard redesign; one picker | Interface changes, agreed to wait until the numbers are settled. Three mockups in `docs/mockups/` (verdict-led, dashboard grid, season-timeline-led) when the time comes. |
+| Bimodal seasons | Only where there are two rainy seasons. Zimbabwe has one. Belongs with East Africa. |
+| Country onset presets | A preset list of one is a list. |
+| Rain map, compare towns, what-if replay, heat stress | New screens or later in the season. Heat stress is a cheap follow-on once planting is right. |
+| Soil, fertiliser, crops, pests, markets, storage | New sources and new subjects. Kurima has not earned the planting decision yet. |
+| More countries | Needs Stage 4 first. Expanding an unvalidated rule multiplies risk, not value. |
+| Languages, mobile app | Translate the app once it is worth translating. |
 
+---
+
+## How we judge it
+
+Kurima tells farmers when to plant. If it is wrong, someone loses a season. This is the honest
+account of what is checked, what is not, and how much weight the answer can bear.
+
+### The distinction that matters
+
+**Unit tests prove the code does what we said. They say nothing about whether what we said is
+right.** `evaluateSignal` can be perfectly implemented and still give bad advice, because the
+rule inside it is a human judgement about agronomy. Those are two different kinds of wrong and
+they need two different kinds of checking.
+
+### What is checked today
+
+#### 1. Unit tests — is the code what we meant?
+87 tests across `src/lib/`. Example-based: given this rain, expect this answer.
+**Catches:** typos, off-by-one errors, wrong comparisons, regressions.
+**Misses:** a rule that is implemented perfectly and is simply wrong.
+
+#### 2. Property tests — is what we meant self-consistent?
+`src/lib/signal-properties.test.ts` asserts relationships that must hold for *any* input:
+more rain never makes the advice more negative; more evaporation never improves confidence;
+evaporation never changes the verdict itself, only the confidence attached to it.
+**Catches:** sign errors and inverted logic that example tests walk past, because they hold
+over a whole space of inputs rather than a handful of chosen points.
+**Misses:** anything where the rule is consistently, coherently wrong.
+
+#### 3. Backtest — was the advice any good?
+`src/lib/backtest.test.ts`. 116 real onset events — every first 20 mm / 3 days trigger at
+Harare, Bindura, Gwanda and Mutare, 1991 to 2019 — replayed through the real code and scored
+against what the weather actually did next. Run `npm run explain`:
+
+```
+  Onset triggers replayed         116
+  Followed by a killing dry spell  38   (33% of all triggers)
+
+  Rainfall rule says PLANT         66
+    went badly anyway              10   (15% of plant calls)
+    turned out fine                56
+  Bad starts the rule blocked      28 of 38
+
+  Water balance on those 66 plant calls: 14 marked marginal
+    correctly warned                7 of 10 false starts
+    missed                          3
+    false alarms                    7
+
+  Together: 35 of 38 bad starts are blocked or warned about.
+```
+
+Those numbers are asserted, so a change that makes the advice worse fails the build.
+
+**"Bad start" is a proxy**, not a measurement: a dry spell of 10 days or more within 30 days of
+planting, long enough to kill young maize. Nobody measured a dead crop. Only a field trial
+would do that.
+
+### What this has already caught
+
+The backtest was written to support adding water balance to the rule, and it argued against
+doing it the way we planned:
+
+- A fixed threshold of −40 mm looked excellent at Harare, where it was chosen — and missed two
+  of three bad starts at Gwanda. **Tuning and testing on the same district had hidden that.**
+- Switching to the FAO-style ratio of rain to ET0 generalised better, but still only catches 7
+  of 10 false starts at the cost of 7 false alarms out of 66 plant calls.
+- So water balance **colours the answer rather than overruling it**. It was not good enough to
+  be a veto, and shipping it as one would have made Kurima more confident and less right.
+- Separately: the "soil too hot to sow" idea came from a 35.8 °C reading that turned out to be
+  a midday surface spike. The daily mean at seeding depth across all 116 events ran 13.5–28.9 °C.
+  The gate stays in for other climates, but it will essentially never fire in Zimbabwe, and
+  claiming otherwise in the interface would have been misleading.
+
+### What is not checked, and so cannot be claimed
+
+- **Only the first trigger of each season.** The real simulator (Milestone 1 Phase 2) replays
+  every day of every season. Until then this scores one decision per season, not the advice.
+- **Only four districts, only Zimbabwe, only maize, only 29 seasons.** Small samples. A
+  threshold that looks good on 116 events can easily be fitted to noise.
+- **No hold-out set.** The ratio threshold was chosen by looking at all four districts. It
+  should be chosen on some and tested on the rest.
+- **No agronomist has reviewed any threshold.** Every constant in `src/lib/agronomy.ts` is
+  provisional and says so.
+- **The seasonal outlook is uncalibrated.** It is not compared against the model's own past
+  forecasts, so the tercile split is not a probability. This is why the interface now shows
+  only which way it leans.
+- **No field validation at all.** Nobody has planted on Kurima's advice and reported back.
+
+### The ladder, strongest last
+
+1. Unit tests — the code is what we meant. ✅
+2. Property tests — what we meant is self-consistent. ✅
+3. Backtest on recorded events — the advice beat doing nothing. ◐ partial
+4. Full season simulator with a hold-out set — Milestone 1 Phase 2. ✗
+5. Compared against what a farmer does anyway, planting on the first big storm. ✗
+6. Reviewed by an agronomist against AREX guidance. ✗
+7. Field validation with real farmers over real seasons. ✗
+
+**Until 4 and 6 are done, Kurima should not claim its advice beats a farmer's own judgement,
+and the README should keep saying so.**
 ---
 
 ## Open questions
 
-- **Agronomic thresholds.** Still the biggest open question. The ratio of 0.5 was chosen by
-  backtest, not by an agronomist, and it was chosen on the same four districts it was tested
-  on. It needs review against AREX guidance, and a hold-out set.
-- **Visual direction.** Three mockups in `docs/mockups/` — verdict-led, dashboard grid, and
-  season-timeline-led. Stage 2 builds whichever is chosen.
-- **Redeploy.** Phase 1 and 3 are merged but not live.
+- **Agronomic thresholds.** The ratio of 0.5 was chosen by backtest, not by an agronomist, and
+  on the same four districts it was tested on. It needs review against AREX guidance, and a
+  hold-out set.
+- **Visual direction.** Parked until the numbers are settled; see the mockups.
+- **Redeploy.** Nothing since Phase 1 is live.

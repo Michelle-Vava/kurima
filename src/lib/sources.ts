@@ -7,8 +7,12 @@
 // touching a screen.
 
 import type { DailySeries } from './climate'
+import { climateFromSeries, type Climate } from './climatePack'
+import { loadPack } from './packLoader'
+import { placeKey } from './places'
 import {
   fetchHistory,
+  fetchRainBetween,
   fetchSeasonal,
   fetchWeather,
   type Place,
@@ -22,8 +26,12 @@ export interface SourceMeta {
   label: string
   licence: string
   url: string
-  /** `sample` data is bundled with the app and must always be labelled as such. */
-  kind: 'live' | 'sample'
+  /**
+   * `live` comes from an API now; `bundled` is real data derived ahead of time
+   * and shipped with the app; `sample` is a small stand-in and must always be
+   * labelled as such.
+   */
+  kind: 'live' | 'bundled' | 'sample'
 }
 
 export interface Loaded<T> {
@@ -50,12 +58,35 @@ export const forecastSource: DataSource<Weather> = {
   },
 }
 
-export const historySource: DataSource<DailySeries> = {
-  meta: { id: 'era5-history', label: 'ERA5 reanalysis (Copernicus), via Open-Meteo', kind: 'live', ...OPEN_METEO },
+/**
+ * Thirty years of climate, derived. A bundled pack for a pilot district, else
+ * built in the browser from the live archive.
+ */
+export const climateSource: DataSource<Climate> = {
+  meta: { id: 'climate', label: 'ERA5 reanalysis (Copernicus), via Open-Meteo', kind: 'live', ...OPEN_METEO },
   async load(place, signal) {
-    const data = await fetchHistory(place.latitude, place.longitude, signal)
-    return { data, source: this.meta, period: '1991–2020' }
+    const pack = await loadPack(place.name, placeKey(place))
+    if (pack) {
+      return {
+        data: pack,
+        source: { ...this.meta, kind: 'bundled', label: 'ERA5 reanalysis (Copernicus), bundled with the app' },
+        period: pack.period,
+      }
+    }
+    const series = await fetchHistory(place.latitude, place.longitude, signal)
+    return { data: climateFromSeries(series), source: this.meta, period: '1991–2020' }
   },
+}
+
+/** Daily rain from `from` to `to` (YYYY-MM-DD), for this season so far. */
+export function seasonRainSource(from: string, to: string): DataSource<DailySeries> {
+  return {
+    meta: { id: 'season-rain', label: 'ERA5 reanalysis (Copernicus), via Open-Meteo', kind: 'live', ...OPEN_METEO },
+    async load(place, signal) {
+      const data = await fetchRainBetween(place.latitude, place.longitude, from, to, signal)
+      return { data, source: this.meta, asOf: data.time[data.time.length - 1] }
+    },
+  }
 }
 
 export const seasonalSource: DataSource<SeasonalForecast> = {

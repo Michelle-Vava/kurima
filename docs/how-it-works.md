@@ -2,7 +2,7 @@
 
 For a developer who has never farmed. No jargon; where a technical word is unavoidable it is
 introduced once and then replaced with a plain one. Every chart uses real Harare data.
-Regenerate the pictures with `node scripts/explain-charts.mjs`.
+Regenerate the pictures with `node scripts/explain-charts.mjs` (charts live in `docs/explain/`).
 
 ## The one question
 
@@ -35,7 +35,7 @@ In Harare in early November the sun takes about **7 mm a day**. That is the whol
 20 mm of rain falls over three days, but the sun takes 21 mm over those same three days, the
 soil is no wetter than before the storm.
 
-![in vs out](1-in-vs-out.png)
+![in vs out](explain/1-in-vs-out.png)
 
 Blue bars are rain. Orange outlines are what the sun takes, every single day, whether it rains
 or not. The red line adds it up. Over the fortnight before 3 November Harare got 8 mm of rain
@@ -44,7 +44,7 @@ turns that around. The old Kurima, looking only at blue bars, could not see this
 
 ## What a trap looks like
 
-![start vs trap](2-start-vs-trap.png)
+![start vs trap](explain/2-start-vs-trap.png)
 
 Both panels begin on a day when 20 mm had just fallen in Harare, the moment a rain-only rule
 is tempted to say "plant". In 2017 the rain kept coming and a crop planted that day did fine.
@@ -61,7 +61,7 @@ every season from 1991 to 2019, find the first "20 mm in 3 days" moment, ask wha
 and the new check would have said, then look at the next 30 days to see whether a killing dry
 spell arrived. 116 moments in all.
 
-![did it help](4-did-it-help.png)
+![did it help](explain/4-did-it-help.png)
 
 Read the bottom row left to right. Of 66 times the rule said "plant": 49 were fine and the new
 check stayed quiet. 7 were fine but the new check worried anyway, a false alarm. 7 were traps
@@ -84,7 +84,7 @@ Two things this test caught that would otherwise have shipped:
 
 ## The context the app never gave
 
-![when rains start](3-when-rains-start.png)
+![when rains start](explain/3-when-rains-start.png)
 
 Each dot is one season's start. Half of Harare's seasons begin between 21 November and
 10 December. Today, 4 November, is 23 days before the usual start. So "too dry to plant" on
@@ -144,4 +144,4 @@ around 27 November, three weeks away."** Without it, "wait" has no end in sight.
   tested on the rest.
 - No farmer has planted on Kurima's advice and reported back.
 
-See [../validation.md](../validation.md) for the full account.
+See the "How we judge it" section of [../BUILD-ORDER.md](../BUILD-ORDER.md) for the full account.

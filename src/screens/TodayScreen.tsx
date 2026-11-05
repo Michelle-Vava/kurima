@@ -1,7 +1,11 @@
 import { DataLabel } from '../components/DataLabel'
+import { SeasonContextNote } from '../components/SeasonContextNote'
+import type { DailySeries } from '../lib/climate'
+import type { Climate } from '../lib/climatePack'
+import { seasonContext } from '../lib/seasonContext'
 import { RainChart } from '../components/RainChart'
 import { SignalCard } from '../components/SignalCard'
-import { MAX_WEATHER_AGE_DAYS, ageInDays } from '../lib/freshness'
+import { MAX_WEATHER_AGE_DAYS, ageInDays, localIsoDate } from '../lib/freshness'
 import { evaluateSignal, plural, splitAtToday, type OnsetRule } from '../lib/onset'
 import type { Weather } from '../lib/openMeteo'
 import type { Loaded } from '../lib/sources'
@@ -10,6 +14,8 @@ import type { Async } from '../state/useSource'
 
 interface Props {
   weather: Async<Weather>
+  climate: Async<Climate>
+  seasonRain: Async<DailySeries>
   /** Long-term average rain for the current month, if the history loaded. */
   monthNormalMm: number | null
   rule: OnsetRule
@@ -17,7 +23,7 @@ interface Props {
   now: Date
 }
 
-export function TodayScreen({ weather, monthNormalMm, rule, units, now }: Props) {
+export function TodayScreen({ weather, climate, seasonRain, monthNormalMm, rule, units, now }: Props) {
   if (weather.status === 'loading' || weather.status === 'idle') {
     return <div className="card skeleton">Checking the rain…</div>
   }
@@ -58,9 +64,21 @@ export function TodayScreen({ weather, monthNormalMm, rule, units, now }: Props)
   const tMax = w.tempMax?.[w.todayIndex]
   const tMin = w.tempMin?.[w.todayIndex]
 
+  const today = localIsoDate(now)
+  const context =
+    climate.status === 'ok'
+      ? seasonContext(
+          climate.loaded.data,
+          today,
+          seasonRain.status === 'ok' ? seasonRain.loaded.data : null,
+          w.dates.slice(0, w.todayIndex).map((d, i) => [d, w.rain[i]] as [string, number]),
+        )
+      : null
+
   return (
     <>
       <SignalCard result={signal} soilMoisture={w.soilMoisture} units={units}>
+        {context && <SeasonContextNote context={context} units={units} />}
         {Number.isFinite(tMax) && Number.isFinite(tMin) && (
           <p className="fine">
             Today: {formatTemp(tMax!, units.temp)} by day, {formatTemp(tMin!, units.temp)} at night.

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { districtChip, fakeOpenMeteo, geocodeResponse, goToTab, pickDistrict } from './fixtures.ts'
+import { KANO, districtChip, fakeOpenMeteo, geocodeResponse, goToTab, pickDistrict, searchAndPick } from './fixtures.ts'
 
 test('moving between screens keeps the chosen district', async ({ page }) => {
   await fakeOpenMeteo(page)
@@ -48,15 +48,8 @@ test('switching units converts every screen and is remembered', async ({ page })
 })
 
 test('a place outside Zimbabwe says the advice is not checked there', async ({ page }) => {
-  await fakeOpenMeteo(page, {
-    geocode: geocodeResponse([
-      { name: 'Kano', country: 'Nigeria', country_code: 'NG', admin1: 'Kano', latitude: 12.0, longitude: 8.52 },
-    ]),
-  })
-  await page.goto('/')
-  await page.getByText('Somewhere else in Africa').click()
-  await page.getByLabel('Search a town or village').fill('Kano')
-  await page.getByRole('listbox').getByRole('button', { name: /Kano/ }).click()
+  await fakeOpenMeteo(page, { geocode: geocodeResponse([KANO]) })
+  await searchAndPick(page, 'Kano', /Kano/)
 
   await expect(page.getByTestId('not-checked')).toContainText('has not been checked for Nigeria yet')
 })
@@ -68,4 +61,17 @@ test('the tab is kept in the URL so a reload stays put', async ({ page }) => {
   expect(page.url()).toContain('#season')
   await page.reload()
   await expect(page.getByRole('button', { name: 'Season', exact: true })).toHaveAttribute('aria-current', 'page')
+})
+
+test('recently chosen districts are offered again', async ({ page }) => {
+  await fakeOpenMeteo(page)
+  await pickDistrict(page, 'Gweru')
+  await page.getByRole('button', { name: 'Change district' }).click()
+  await districtChip(page, 'Masvingo').click()
+  await page.getByRole('button', { name: 'Change district' }).click()
+  const recent = page.getByTestId('recent')
+  await expect(recent).toContainText('Masvingo')
+  await expect(recent).toContainText('Gweru')
+  // Most recent first.
+  await expect(recent.locator('.chip').first()).toContainText('Masvingo')
 })

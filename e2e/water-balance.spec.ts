@@ -44,16 +44,3 @@ test('the season outlook shows a lean, not a false-precision percentage', async 
   await expect(outlook).toContainText('only which way it leans')
   await expect(outlook).not.toContainText('%')
 })
-
-test('the Learn screen explains the ideas behind the advice', async ({ page }) => {
-  await fakeOpenMeteo(page)
-  await pickDistrict(page)
-  await goToTab(page, 'Learn')
-
-  await expect(page.getByTestId('learn-intro')).toContainText('No farming background assumed')
-  const evap = page.getByTestId('learn-evaporation')
-  await expect(evap).toContainText('Why does rain not simply add up?')
-  await evap.getByRole('group').or(evap).locator('summary').click()
-  await expect(evap).toContainText('evapotranspiration')
-  await expect(evap).toContainText('In Kurima:')
-})

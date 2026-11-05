@@ -115,6 +115,15 @@ export async function fetchHistory(lat: number, lon: number, signal?: AbortSigna
   return series
 }
 
+/** Daily rain between two dates from the archive (lags a few days behind today). */
+export async function fetchRainBetween(lat: number, lon: number, from: string, to: string, signal?: AbortSignal): Promise<DailySeries> {
+  if (from > to) return { time: [], values: [] }
+  const url =
+    `${ARCHIVE}?latitude=${lat}&longitude=${lon}&start_date=${from}&end_date=${to}&daily=precipitation_sum&timezone=auto`
+  const d = await getJson(url, signal)
+  return { time: d.daily?.time ?? [], values: d.daily?.precipitation_sum ?? [] }
+}
+
 export interface SeasonalForecast {
   dates: string[]
   /** One daily rain series per ensemble member. */

@@ -1,7 +1,6 @@
 export const TABS = [
   { id: 'today', label: 'Today' },
   { id: 'season', label: 'Season' },
-  { id: 'learn', label: 'Learn' },
   { id: 'settings', label: 'Settings' },
 ] as const
 

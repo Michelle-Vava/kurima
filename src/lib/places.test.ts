@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { PILOT_COUNTRY_CODE, PILOT_DISTRICTS, describePlace, isPilotPlace, placeKey } from './places'
+import { PILOT_COUNTRY_CODE, PILOT_DISTRICTS, coverageOf, describePlace, isPilotPlace, placeKey } from './places'
 
 describe('pilot districts', () => {
   it('are all in the pilot country', () => {
@@ -32,6 +32,10 @@ describe('isPilotPlace', () => {
   it('is true for a pilot district and false elsewhere', () => {
     expect(isPilotPlace(PILOT_DISTRICTS[0])).toBe(true)
     expect(isPilotPlace(elsewhere)).toBe(false)
+  })
+  it('names the coverage level', () => {
+    expect(coverageOf(PILOT_DISTRICTS[0])).toBe('checked')
+    expect(coverageOf(elsewhere)).toBe('weather-only')
   })
 })
 

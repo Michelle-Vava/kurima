@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AppContext, type AppState } from './appContext'
-import { readSettings, writeSettings, type Settings } from './settings'
+import { readSettings, rememberPlace, writeSettings, type Settings } from './settings'
 
 /** Holds the chosen place and settings, and keeps them on the device. */
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -13,7 +13,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const value = useMemo<AppState>(
     () => ({
       ...settings,
-      setPlace: (place) => setSettings((s) => ({ ...s, place })),
+      setPlace: (place) =>
+        setSettings((s) => ({ ...s, place, recent: place ? rememberPlace(s.recent, place) : s.recent })),
       setUnits: (units) => setSettings((s) => ({ ...s, units })),
       setRule: (rule) => setSettings((s) => ({ ...s, rule })),
     }),

@@ -9,10 +9,10 @@ export type Async<T> =
   | { status: 'error'; message: string }
 
 /** Load one data source for the chosen place, cancelling if the place changes. */
-export function useSource<T>(source: DataSource<T>, place: Place | null): Async<T> {
+export function useSource<T>(source: DataSource<T> | null, place: Place | null): Async<T> {
   const [state, setState] = useState<Async<T>>({ status: 'idle' })
   useEffect(() => {
-    if (!place) {
+    if (!place || !source) {
       setState({ status: 'idle' })
       return
     }
