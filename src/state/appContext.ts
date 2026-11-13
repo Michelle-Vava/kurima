@@ -1,6 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { OnsetRule } from '../lib/onset'
 import type { Place } from '../lib/openMeteo'
+import type { ThemeId } from '../lib/themes'
 import type { Units } from '../lib/units'
 import type { Settings } from './settings'
 
@@ -8,6 +9,9 @@ export interface AppState extends Settings {
   setPlace: (place: Place | null) => void
   setUnits: (units: Units) => void
   setRule: (rule: OnsetRule) => void
+  setCrop: (crop: string) => void
+  setPlantedOn: (date: string | null) => void
+  setTheme: (theme: ThemeId) => void
 }
 
 export const AppContext = createContext<AppState | null>(null)

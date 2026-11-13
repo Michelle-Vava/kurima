@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test'
-import { KANO, fakeOpenMeteo, forecastResponse, geocodeResponse, goToTab, historyResponse, pickDistrict, searchAndPick } from './fixtures.ts'
+import { KANO, fakeOpenMeteo, forecastResponse, geocodeResponse, goToTab, historyResponse, pickDistrict, usePlace } from './fixtures.ts'
 
 const showers = [3, 0, 4, 2, 0, 5, 1, 0, 3, 2, 4, 0, 2, 3, 1, 2] // never 7 dry days in a row
 
@@ -11,7 +11,7 @@ test('a farmer picks a district and gets a plant answer', async ({ page }) => {
 
   const signal = page.locator('[data-signal]')
   await expect(signal).toHaveAttribute('data-signal', 'plant')
-  await expect(signal.getByRole('heading', { level: 2 })).toHaveText('Good time to plant')
+  await expect(signal.getByRole('heading', { level: 2 })).toHaveText('Good time to plant maize')
   await expect(signal).toContainText('23 mm fell within 3 days')
   await expect(signal).toContainText('Open-Meteo forecast')
   await expect(signal).toContainText('issued today')
@@ -44,7 +44,7 @@ test('a dry season shows no outlook percentages', async ({ page }) => {
   // Pilot districts ship with real climate packs, so a bone-dry fake history
   // only takes effect somewhere without one: Kano, through search.
   await fakeOpenMeteo(page, { history: historyResponse(0), geocode: geocodeResponse([KANO]) })
-  await searchAndPick(page, 'Kano', /Kano/)
+  await usePlace(page, KANO)
   await expect(page.locator('[data-signal]')).toContainText('outside the usual rainy season')
 
   await goToTab(page, 'Season')

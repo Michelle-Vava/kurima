@@ -126,6 +126,40 @@ export function tercileOutlook(historicalTotals: number[], memberTotals: number[
   }
 }
 
+/**
+ * A month counts towards a rainy season once it reaches this share of the
+ * wettest month. Loose on purpose: the cost of merging two seasons that are
+ * really one is a sentence Kurima already says, and the cost of splitting one
+ * season that is really two is a planting date that is wrong by months.
+ */
+export const RAINY_MONTH_SHARE = 0.4
+
+/** Below this in the wettest month there is no rainy season to speak of (mm). */
+export const RAINY_PEAK_MIN_MM = 30
+
+/**
+ * How many distinct rainy seasons a year has here, from the monthly normals:
+ * runs of wet months, counted around the turn of the year so that a southern
+ * December-to-March season is one season and not two.
+ *
+ * 0 means nowhere near enough rain to farm by. 1 is the case Kurima is built
+ * for. 2 is East Africa's long and short rains, where a single "the rains
+ * usually break on…" is not a less precise answer but a wrong one, and
+ * Kurima must say nothing rather than average the two together.
+ */
+export function rainySeasonCount(normals: number[]): number {
+  const peak = Math.max(...normals, 0)
+  if (peak < RAINY_PEAK_MIN_MM) return 0
+  const wet = normals.map((n) => n >= peak * RAINY_MONTH_SHARE)
+  if (wet.every(Boolean)) return 1
+  let runs = 0
+  for (let i = 0; i < wet.length; i++) {
+    const previous = wet[(i + wet.length - 1) % wet.length]
+    if (wet[i] && !previous) runs++
+  }
+  return runs
+}
+
 /** The next `count` calendar months after the month of `date` (1–12). */
 export function nextMonths(date: Date, count: number): number[] {
   const start = date.getMonth() + 1 // 0-based getMonth, so +1 is "next month" in 0-based terms

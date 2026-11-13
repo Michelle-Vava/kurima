@@ -9,10 +9,21 @@ function nice(d: string): string {
 
 /** When the rains usually break here, and how this season compares so far. */
 export function SeasonContextNote({ context, units }: { context: SeasonContext; units: Units }) {
-  const { typical, soFar } = context
-  if (!typical && !soFar) return null
+  const { typical, noTypical, soFar } = context
+  // Only one reason is worth a line. "No rainy season" the Season screen
+  // already says, and "too few seasons" is Kurima's problem, not the
+  // farmer's. Two seasons is different: the farmer knows there are two and
+  // would otherwise assume Kurima had simply failed to load.
+  const twoSeasons = noTypical === 'two-seasons'
+  if (!typical && !twoSeasons && !soFar) return null
   return (
     <div className="season-context" data-testid="season-context">
+      {twoSeasons && (
+        <p data-testid="two-seasons">
+          There are <strong>two rainy seasons</strong> a year here. Kurima judges one season a year, so it does not
+          say when the rains usually break at this place yet.
+        </p>
+      )}
       {typical && (
         <p>
           {typical.daysAway > 0 ? (
@@ -28,7 +39,10 @@ export function SeasonContextNote({ context, units }: { context: SeasonContext; 
               {plural(-typical.daysAway, 'day')} ago.
             </>
           )}{' '}
-          <span className="muted">Most years: {nice(typical.from)} to {nice(typical.to)}.</span>
+          {/* The quartiles cover the middle half of past seasons, not "most"
+              of them: half the time the rains break outside this window, and
+              a farmer told "most years" would be wrong one season in two. */}
+          <span className="muted">Half of past seasons: {nice(typical.from)} to {nice(typical.to)}.</span>
         </p>
       )}
       {soFar && (

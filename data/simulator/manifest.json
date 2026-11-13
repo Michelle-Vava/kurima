@@ -1,0 +1,198 @@
+{
+  "builtAt": "2026-11-08",
+  "source": "ERA5 via Open-Meteo archive (CC BY 4.0)",
+  "places": [
+    {
+      "place": "AddisAbaba",
+      "file": "addisababa.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Aswan",
+      "file": "aswan.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Bindura",
+      "file": "bindura.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "CapeTown",
+      "file": "capetown.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Chinhoyi",
+      "file": "chinhoyi.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Gwanda",
+      "file": "gwanda.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Gweru",
+      "file": "gweru.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Harare",
+      "file": "harare.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Kano",
+      "file": "kano.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Kisumu",
+      "file": "kisumu.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Lilongwe",
+      "file": "lilongwe.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Marondera",
+      "file": "marondera.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Masvingo",
+      "file": "masvingo.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Mbandaka",
+      "file": "mbandaka.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    },
+    {
+      "place": "Mutare",
+      "file": "mutare.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      },
+      "soilDays": {
+        "have": 10958,
+        "want": 10958
+      }
+    },
+    {
+      "place": "Windhoek",
+      "file": "windhoek.json",
+      "from": "1991-01-01",
+      "to": "2026-10-31",
+      "rainDays": {
+        "have": 13088,
+        "want": 13088
+      }
+    }
+  ]
+}

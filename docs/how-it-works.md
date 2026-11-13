@@ -88,9 +88,25 @@ Two things this test caught that would otherwise have shipped:
 
 Each dot is one season's start. Half of Harare's seasons begin between 21 November and
 10 December. Today, 4 November, is 23 days before the usual start. So "too dry to plant" on
-4 November is not a warning, it is Tuesday. Kurima currently says "too dry" without this, and a
-farmer cannot tell routine from alarming. This chart is Stage 2 of the build order, and it needs
-no new data, only the history the app already downloads.
+4 November is not a warning, it is Tuesday. Kurima used to say "too dry" without this, and a
+farmer could not tell routine from alarming; the sentence shipped on 4 November.
+
+**Half, not most.** The 21 November – 10 December band is the middle *half* of past seasons —
+the quartiles. In one season out of four the rains break before it, and in one out of four they
+break after. The app said "most years" until 6 November, which would have been wrong one season
+in two. A definition of "the rains broke" is below.
+
+**What counts as a start, exactly.** The same thing the live rule looks for, read backwards over
+the record: 20 mm within 3 days, with no 7-day dry spell in the three weeks after it. Two
+differences from the live answer are worth knowing, because they are not yet reconciled:
+
+- With hindsight the dry-spell check sees a fixed 21 days. Live it sees whatever forecast there
+  is, at most 16 days. The historical definition is therefore the stricter of the two.
+- The live rule also refuses to say "plant" in a month that normally gets under 30 mm. The
+  historical onset dates do not apply that filter, which is why Harare's earliest dot is in
+  early October.
+
+Neither difference is large for Zimbabwe and neither has been settled. They are listed as open
 
 ## A day in the life, 4 November 2026, Harare
 
@@ -109,8 +125,9 @@ Tendai opens Kurima. Here is each line on the Today screen and what it is for.
 | Season tab: *Leaning close to normal* | The 3-month model does not expect an unusually dry or wet season. | Low to medium: direction only; the percentages were removed because they were not real probabilities. |
 | Season tab: *Normal rainfall here* | What a typical year looks like, month by month. | Medium: it is how Kurima knows November is rainy season and July is not. |
 
-What is missing from that screen that Tendai actually needs: **"the rains here usually start
-around 27 November, three weeks away."** Without it, "wait" has no end in sight.
+What was missing from that screen that Tendai actually needed — **"the rains here usually break
+around 27 November, three weeks away"** — shipped on 4 November and is now the second line of
+the answer. Without it, "wait" had no end in sight.
 
 ## What Kurima has, and what it does not
 
@@ -126,14 +143,17 @@ around 27 November, three weeks away."** Without it, "wait" has no end in sight.
 | Data age, hide when stale | Have | A two-day-old "plant" shown offline is dangerous. |
 | Season direction, no fake percentages | Have | Honest about how little a 3-month outlook knows. |
 | Monthly normals | Have | How Kurima knows what season it is. |
-| Learn screen | Have, since 3 Nov | Explains all of the above to a new farmer. |
-| **When the rains usually start here** | Missing, Stage 2 | Turns "wait" into "wait, about three weeks". |
-| **Days until planting is likely** | Missing, Stage 2 | A reason to open the app on a given day. |
-| This season compared with past ones | Missing, Stage 2 | "Am I behind?" |
-| Screen that leads with the answer | Missing, Stage 2 | Today everything has equal weight. |
-| Fast, offline climate data for pilot districts | Missing, Stage 3 | The Season tab downloads 198 KB to show 318 bytes of answers. |
-| One picker for any place in Africa | Missing, Stage 3 | Districts and search feel like two products. |
-| Replay every day of every season, not just the first storm | Missing, Stage 4 | The real test of whether the advice beats a farmer's own judgement. |
+| Learn screen | Built 3 Nov, **removed 4 Nov** | Explaining the numbers while the numbers were still being settled put the cart before the horse. This document is where that content went. |
+| **When the rains usually break here** | Have, since 4 Nov | Turns "wait" into "wait, about three weeks". |
+| This season compared with past ones | Have, since 4 Nov | "Am I behind?" |
+| Fast, offline climate data for pilot districts | Have, since 4 Nov | The Season tab used to download 198 KB to show 318 bytes of answers. |
+| Holes in the archive handled as unknown, not as dry days | Have, since 6 Nov | A missing day used to be counted as 0 mm, or drop a whole past season from the comparison without saying so. |
+| A season with two rainy seasons told apart from one | Have, since 6 Nov | East Africa gets no onset date rather than the average of two, which is a date in the dry gap between them. |
+| **Days until planting is likely** | Missing | A reason to open the app on a given day. "Usual onset" is the climate's answer, not this season's. |
+| Screen that leads with the answer | **Being chosen now**, `/#design` | Today everything has equal weight. Three candidates, in the app. |
+| One picker for any place in Africa | Missing | Districts and search feel like two products. |
+| Onset judged per rainy season, not per year | Missing | What "two rainy seasons" needs before East Africa gets a date at all. |
+| Replay every day of every season, not just the first storm | Missing, next stage | The real test of whether the advice beats a farmer's own judgement. |
 | An agronomist's review of the thresholds | Missing, open | Every number was chosen by backtest, not by someone who grows maize. |
 
 ## What the charts cannot tell you
@@ -144,4 +164,3 @@ around 27 November, three weeks away."** Without it, "wait" has no end in sight.
   tested on the rest.
 - No farmer has planted on Kurima's advice and reported back.
 
-See the "How we judge it" section of [../BUILD-ORDER.md](../BUILD-ORDER.md) for the full account.

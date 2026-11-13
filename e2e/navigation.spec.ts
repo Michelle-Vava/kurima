@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test'
-import { KANO, districtChip, fakeOpenMeteo, geocodeResponse, goToTab, pickDistrict, searchAndPick } from './fixtures.ts'
+import { KANO, fakeOpenMeteo, geocodeResponse, goToTab, pickDistrict, switchCrop, switchDistrict, usePlace } from './fixtures.ts'
 
 test('moving between screens keeps the chosen district', async ({ page }) => {
   await fakeOpenMeteo(page)
   await pickDistrict(page, 'Gwanda')
-  const place = page.getByRole('heading', { name: 'Gwanda', level: 2 })
+  const place = page.getByTestId('district-menu')
 
   for (const tab of ['Season', 'Settings', 'Today'] as const) {
     await goToTab(page, tab)
@@ -17,16 +17,19 @@ test('the chosen district survives a reload', async ({ page }) => {
   await fakeOpenMeteo(page)
   await pickDistrict(page, 'Mutare')
   await page.reload()
-  await expect(page.getByRole('heading', { name: 'Mutare', level: 2 })).toBeVisible()
-  await expect(page.getByTestId('place-picker')).toHaveCount(0)
+  await expect(page.getByTestId('district-menu')).toContainText('Mutare')
+  await expect(page.getByTestId('picker')).toHaveCount(0)
 })
 
-test('the district can be changed again', async ({ page }) => {
+test('the district is switched from a dropdown, without leaving the answer', async ({ page }) => {
+  // Changing district used to mean leaving the screen for a picker page and
+  // coming back. The answer must now stay on screen the whole time.
   await fakeOpenMeteo(page)
   await pickDistrict(page, 'Gweru')
-  await page.getByRole('button', { name: 'Change district' }).click()
-  await districtChip(page, 'Masvingo').click()
-  await expect(page.getByRole('heading', { name: 'Masvingo', level: 2 })).toBeVisible()
+  await expect(page.locator('[data-signal]')).toBeVisible()
+  await switchDistrict(page, 'Masvingo')
+  await expect(page.locator('[data-signal]')).toBeVisible()
+  await expect(page.getByTestId('picker')).toHaveCount(0)
 })
 
 test('switching units converts every screen and is remembered', async ({ page }) => {
@@ -49,7 +52,7 @@ test('switching units converts every screen and is remembered', async ({ page })
 
 test('a place outside Zimbabwe says the advice is not checked there', async ({ page }) => {
   await fakeOpenMeteo(page, { geocode: geocodeResponse([KANO]) })
-  await searchAndPick(page, 'Kano', /Kano/)
+  await usePlace(page, KANO)
 
   await expect(page.getByTestId('not-checked')).toContainText('has not been checked for Nigeria yet')
 })
@@ -63,15 +66,14 @@ test('the tab is kept in the URL so a reload stays put', async ({ page }) => {
   await expect(page.getByRole('button', { name: 'Season', exact: true })).toHaveAttribute('aria-current', 'page')
 })
 
-test('recently chosen districts are offered again', async ({ page }) => {
+test('the crop is named in the answer, and can be changed', async ({ page }) => {
+  // "Too dry to plant" begged the question: plant what? Every threshold was
+  // derived for maize and the screen never said so.
   await fakeOpenMeteo(page)
-  await pickDistrict(page, 'Gweru')
-  await page.getByRole('button', { name: 'Change district' }).click()
-  await districtChip(page, 'Masvingo').click()
-  await page.getByRole('button', { name: 'Change district' }).click()
-  const recent = page.getByTestId('recent')
-  await expect(recent).toContainText('Masvingo')
-  await expect(recent).toContainText('Gweru')
-  // Most recent first.
-  await expect(recent.locator('.chip').first()).toContainText('Masvingo')
+  await pickDistrict(page)
+  await expect(page.locator('[data-signal] h2')).toContainText('maize')
+  await switchCrop(page, 'Sorghum')
+  await expect(page.locator('[data-signal] h2')).toContainText('sorghum')
+  await page.reload()
+  await expect(page.getByTestId('crop-menu')).toContainText('Sorghum')
 })

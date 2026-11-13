@@ -5,8 +5,10 @@ import {
   daysBetween,
   onsetDates,
   onsetStats,
+  rainToDate,
   rainToDateByYear,
   rankAmong,
+  scanOnsets,
   seasonStartMonth,
   seasonYearOf,
   typicalOnset,
@@ -114,5 +116,76 @@ describe('season so far', () => {
     expect(rankAmong(5, past)).toBe(0)
     expect(rankAmong(500, past)).toBe(1)
     expect(rankAmong(55, past.slice(0, 5))).toBeNull()
+  })
+})
+
+describe('holes in the record', () => {
+  // The onset is 20 Nov; the record is otherwise complete across two seasons.
+  const WET = {
+    '2000-11-20': 25, '2000-11-24': 5, '2000-11-28': 5, '2000-12-02': 5, '2000-12-06': 5, '2000-12-10': 5,
+    '2001-11-20': 25, '2001-11-24': 5, '2001-11-28': 5, '2001-12-02': 5, '2001-12-06': 5, '2001-12-10': 5,
+  }
+  const full = series('2000-08-01', '2002-07-31', WET)
+  const without = (dates: string[]) => {
+    const drop = new Set(dates)
+    const keep = full.time.map((d) => !drop.has(d))
+    return { time: full.time.filter((_, i) => keep[i]), values: full.values.filter((_, i) => keep[i]) }
+  }
+  const blanked = (dates: string[]) => {
+    const blank = new Set(dates)
+    return { time: full.time, values: full.values.map((v, i) => (blank.has(full.time[i]) ? null : v)) }
+  }
+
+  it('reads both seasons when the record is whole', () => {
+    expect(scanOnsets(full, 8)).toEqual({
+      dates: [{ seasonYear: 2000, date: '2000-11-20' }, { seasonYear: 2001, date: '2001-11-20' }],
+      withoutOnset: 0,
+      incomplete: 0,
+    })
+    expect(rainToDate(full, 8, 120)).toEqual({ totals: [35, 35], incomplete: 0 })
+  })
+
+  it('sets a season aside rather than reading a hole as a dry day', () => {
+    // Blank the onset rain itself. The old code read null as 0 mm and moved
+    // the season's onset later; now the season is declared unjudgeable.
+    const s = blanked(['2000-11-20'])
+    const scan = scanOnsets(s, 8)
+    expect(scan.dates).toEqual([{ seasonYear: 2001, date: '2001-11-20' }])
+    expect(scan.incomplete).toBe(1)
+    expect(scan.withoutOnset).toBe(0)
+  })
+
+  it('does not blame the weather for a gap in the data', () => {
+    // The distinction that matters: "the rains never came" is a fact about
+    // the season, "we could not tell" is a fact about the archive.
+    // Three extra weeks on the end so the last season has its hindsight and
+    // is judged on the weather rather than on where the record stops.
+    const dry = series('2000-08-01', '2002-08-21', {})
+    expect(scanOnsets(dry, 8)).toMatchObject({ withoutOnset: 2, incomplete: 0 })
+    expect(scanOnsets(blanked(['2000-11-20']), 8)).toMatchObject({ withoutOnset: 0, incomplete: 1 })
+  })
+
+  it('ignores a hole that falls after the onset it already found', () => {
+    expect(scanOnsets(blanked(['2001-06-15']), 8).dates).toHaveLength(2)
+  })
+
+  it('keeps the rest of the record when one row is missing entirely', () => {
+    // A missing row used to shift every later row, so a 120-day window
+    // silently spanned 121 days of calendar, or the season vanished.
+    const scan = scanOnsets(without(['2000-10-15']), 8)
+    expect(scan.dates).toEqual([{ seasonYear: 2001, date: '2001-11-20' }])
+    expect(scan.incomplete).toBe(1)
+  })
+
+  it('refuses to total a season it cannot total, and says how many', () => {
+    // One day short of the window and the old code dropped the season with no
+    // trace, so "wetter than 80% of 29 seasons" quietly became 28.
+    expect(rainToDate(without(['2000-09-09']), 8, 120)).toEqual({ totals: [35], incomplete: 1 })
+    expect(rainToDate(blanked(['2001-10-01']), 8, 120)).toEqual({ totals: [35], incomplete: 1 })
+  })
+
+  it('never totals a short season as if it were a full one', () => {
+    const { totals } = rainToDate(without(['2000-09-09']), 8, 120)
+    expect(totals).toEqual([35]) // never 35 minus a day silently read as dry
   })
 })

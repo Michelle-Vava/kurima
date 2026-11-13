@@ -1,7 +1,9 @@
 // Settings the farmer chooses, kept on their own device and nowhere else.
 
+import { CROPS, DEFAULT_CROP } from '../lib/crops'
 import { DEFAULT_RULE, type OnsetRule } from '../lib/onset'
 import type { Place } from '../lib/openMeteo'
+import { DEFAULT_THEME, isThemeId, type ThemeId } from '../lib/themes'
 import { DEFAULT_UNITS, type Units } from '../lib/units'
 
 export const STORAGE_KEY = 'kurima:settings'
@@ -16,9 +18,26 @@ export interface Settings {
   recent: Place[]
   units: Units
   rule: OnsetRule
+  /** Which crop the advice is about. Every threshold was derived for maize. */
+  crop: string
+  /**
+   * The day the farmer says they sowed, if they have. Turns Kurima's question
+   * from "should I plant?" into "will what I planted survive?" — the only
+   * thing the app ever asks a person to tell it.
+   */
+  plantedOn: string | null
+  theme: ThemeId
 }
 
-export const DEFAULT_SETTINGS: Settings = { place: null, recent: [], units: DEFAULT_UNITS, rule: DEFAULT_RULE }
+export const DEFAULT_SETTINGS: Settings = {
+  place: null,
+  recent: [],
+  units: DEFAULT_UNITS,
+  rule: DEFAULT_RULE,
+  crop: DEFAULT_CROP,
+  plantedOn: null,
+  theme: DEFAULT_THEME,
+}
 
 function isPlace(v: unknown): v is Place {
   const p = v as Place
@@ -47,7 +66,14 @@ export function parseSettings(raw: string | null): Settings {
       temp: v.units?.temp === 'F' ? 'F' : 'C',
     },
     rule: { ...DEFAULT_RULE, ...numbersOnly(v.rule) },
+    crop: CROPS.some((c) => c.id === v.crop) ? (v.crop as string) : DEFAULT_CROP,
+    plantedOn: isIsoDate(v.plantedOn) ? v.plantedOn : null,
+    theme: isThemeId(v.theme) ? v.theme : DEFAULT_THEME,
   }
+}
+
+function isIsoDate(v: unknown): v is string {
+  return typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v)
 }
 
 function numbersOnly(rule: Partial<OnsetRule> | undefined): Partial<OnsetRule> {

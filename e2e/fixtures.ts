@@ -3,6 +3,7 @@
 // forecast's age by comparing its "today" with the device date.
 
 import { expect, type Page } from '@playwright/test'
+import { dailyRain, shape } from '../src/lib/fixtures/climates.ts'
 
 export function isoDate(d: Date): string {
   const y = d.getFullYear()
@@ -78,12 +79,17 @@ export function forecastResponse(o: ForecastOptions = {}) {
   }
 }
 
+export interface HistoryFake {
+  timezone: string
+  daily: { time: string[]; precipitation_sum: (number | null)[] }
+}
+
 /**
  * Response for archive-api.open-meteo.com for 1991-01-01..2020-12-31.
  * `mmPerDay` constant rain gives every month a normal of ~60 mm at 2 mm/day,
  * so every month counts as rainy season; 0 makes everywhere a dry season.
  */
-export function historyResponse(mmPerDay = 2) {
+export function historyResponse(mmPerDay = 2): HistoryFake {
   // 1991 through yesterday, so both the thirty-year climate and this season so far are served.
   const start = new Date(1991, 0, 1, 12)
   const days = Math.round((daysFromToday(-1).getTime() - start.getTime()) / 86_400_000) + 1
@@ -109,13 +115,76 @@ export function seasonalResponse(today = daysFromToday(0), mmPerDay = 1) {
 }
 
 export const KANO = { name: 'Kano', country: 'Nigeria', country_code: 'NG', admin1: 'Kano', latitude: 12.0, longitude: 8.52 }
+export const KISUMU = { name: 'Kisumu', country: 'Kenya', country_code: 'KE', admin1: 'Kisumu', latitude: -0.09, longitude: 34.77 }
+export const ASWAN = { name: 'Aswan', country: 'Egypt', country_code: 'EG', admin1: 'Aswan', latitude: 24.09, longitude: 32.9 }
 
-/** Pick a place through the Africa-wide search (needs a geocode fake). */
-export async function searchAndPick(page: Page, query: string, resultName: RegExp) {
+/**
+ * Archive response with the rainfall *shape* of a named regime rather than a
+ * flat mm/day — see src/lib/fixtures/climates.ts. Needed for anything that
+ * depends on a season having a beginning and an end: a constant drizzle has
+ * no driest month, no onset and no dry spell, so it cannot test any of them.
+ */
+export function shapedHistoryResponse(key: string): HistoryFake {
+  const to = isoDate(daysFromToday(-1))
+  const series = dailyRain(shape(key), '1991-01-01', to)
+  return { timezone: 'Africa/Harare', daily: { time: series.time, precipitation_sum: series.values } }
+}
+
+/** The settings key on the device. Mirrors STORAGE_KEY in src/state/settings.ts. */
+const SETTINGS_KEY = 'kurima:settings'
+
+interface GeoPlace {
+  name: string
+  country: string
+  country_code: string
+  admin1?: string
+  latitude: number
+  longitude: number
+}
+
+/**
+ * Open the app with a place already chosen, by seeding the device settings.
+ *
+ * The picker offers the Zimbabwe pilot districts and nothing else — the
+ * Africa-wide search box was removed on 9 November, because a search box that
+ * reaches Cairo implies a coverage Kurima does not have. Seeding is how a
+ * test reaches anywhere else, and it is not a trick: it is exactly what
+ * happens on a farmer's second visit, when the place is read back off the
+ * device. Search returns as a first-class picker in Milestone 5.
+ */
+export async function usePlace(page: Page, geo: GeoPlace) {
+  const place = {
+    name: geo.name,
+    region: geo.admin1,
+    country: geo.country,
+    countryCode: geo.country_code,
+    latitude: geo.latitude,
+    longitude: geo.longitude,
+  }
+  await page.addInitScript(
+    // Runs in the browser, so `localStorage` is reached through globalThis:
+    // this file is type-checked as Node and has no DOM lib.
+    ([key, p]) => {
+      ;(globalThis as { localStorage: Storage }).localStorage.setItem(key as string, JSON.stringify({ place: p, recent: [p] }))
+    },
+    [SETTINGS_KEY, place] as const,
+  )
   await page.goto('/')
-  await page.getByText('Somewhere else in Africa').click()
-  await page.getByLabel('Search a town or village').fill(query)
-  await page.getByRole('listbox').getByRole('button', { name: resultName }).click()
+  await expect(page.getByTestId('district-menu')).toContainText(geo.name)
+}
+
+/** Switch district through the dropdown, without leaving the screen. */
+export async function switchDistrict(page: Page, name: string) {
+  await page.getByTestId('district-menu').click()
+  await page.getByRole('option', { name: new RegExp(`^${name}`) }).click()
+  await expect(page.getByTestId('district-menu')).toContainText(name)
+}
+
+/** Switch crop through the dropdown. */
+export async function switchCrop(page: Page, name: string) {
+  await page.getByTestId('crop-menu').click()
+  await page.getByRole('option', { name: new RegExp(`^${name}`) }).click()
+  await expect(page.getByTestId('crop-menu')).toContainText(name)
 }
 
 /** Results for the Africa-wide search box. */
@@ -125,7 +194,7 @@ export function geocodeResponse(places: { name: string; country: string; country
 
 export interface FakeWeather {
   forecast?: ReturnType<typeof forecastResponse>
-  history?: ReturnType<typeof historyResponse>
+  history?: HistoryFake
   seasonal?: ReturnType<typeof seasonalResponse>
   geocode?: ReturnType<typeof geocodeResponse>
 }
@@ -177,7 +246,7 @@ export function districtChip(page: Page, name: string) {
 export async function pickDistrict(page: Page, name = 'Harare') {
   await page.goto('/')
   await districtChip(page, name).click()
-  await page.getByRole('heading', { name, level: 2 }).waitFor()
+  await expect(page.getByTestId('district-menu')).toContainText(name)
 }
 
 /** Move to a tab and wait for it to become current. */

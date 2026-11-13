@@ -1,13 +1,16 @@
 import { useEffect, useMemo, useState } from 'react'
+import { FieldBar } from './components/FieldBar'
 import { Nav } from './components/Nav'
 import { PlacePicker } from './components/PlacePicker'
 import { nextMonths } from './lib/climate'
 import { localIsoDate } from './lib/freshness'
 import { addDays, seasonStart, seasonYearOf } from './lib/season'
-import { describePlace, isPilotPlace, PILOT_COUNTRY } from './lib/places'
-import { isTabId, type TabId } from './lib/tabs'
+import { isPilotPlace, PILOT_COUNTRY } from './lib/places'
+import { isTabId, needsPlace, sectionOf, type TabId } from './lib/tabs'
 import { climateSource, forecastSource, seasonRainSource, seasonalSource } from './lib/sources'
+import { AboutScreen } from './screens/AboutScreen'
 import { SeasonScreen } from './screens/SeasonScreen'
+import { SoonScreen } from './screens/SoonScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { TodayScreen } from './screens/TodayScreen'
 import { useApp } from './state/appContext'
@@ -38,7 +41,7 @@ function useHashTab(): [TabId, (tab: TabId) => void] {
 }
 
 export default function App() {
-  const { place, setPlace, recent, units, setUnits, rule, setRule } = useApp()
+  const { place, setPlace, units, setUnits, rule, setRule, crop, setCrop, plantedOn, setPlantedOn, theme, setTheme } = useApp()
   const [tab, setTab] = useHashTab()
   const [changing, setChanging] = useState(false)
 
@@ -67,7 +70,12 @@ export default function App() {
   const monthKey = `${now.getFullYear()}-${now.getMonth()}`
   const outlookMonths = useMemo(() => nextMonths(now, OUTLOOK_MONTHS), [monthKey]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const picking = !place || changing
+  // The picker takes the whole screen until a place is chosen; after that it
+  // is only shown on request. Sections that do not depend on a place — About,
+  // Settings — stay reachable either way, so a first-time visitor can read
+  // what Kurima is before being asked for anything.
+  const section = sectionOf(tab)
+  const picking = changing || (!place && needsPlace(tab))
 
   return (
     <div className="app">
@@ -76,15 +84,29 @@ export default function App() {
           <span className="logo" aria-hidden>🌾</span>
           <div>
             <h1>Kurima</h1>
-            <p>Planting and rainfall guidance for farmers in {PILOT_COUNTRY}</p>
+            <p>Planting guidance for rain-fed farmers in {PILOT_COUNTRY}</p>
           </div>
         </div>
       </header>
 
-      <main>
+      <Nav tab={tab} onChange={setTab} />
+
+      {place && !picking && (
+        <FieldBar
+          place={place}
+          crop={crop}
+          plantedOn={plantedOn}
+          today={today}
+          busy={weather.status === 'loading'}
+          onPlace={setPlace}
+          onCrop={setCrop}
+          onPlanted={setPlantedOn}
+        />
+      )}
+
+      <main className={place && (tab === 'today' || tab === 'season') ? 'two-col' : undefined}>
         {picking && (
           <PlacePicker
-            recent={recent}
             onSelect={(p) => {
               setPlace(p)
               setChanging(false)
@@ -93,26 +115,19 @@ export default function App() {
           />
         )}
 
-        {place && !picking && (
+        {!picking && (
           <>
-            <div className="place">
-              <div>
-                <h2>{place.name}</h2>
-                <span>{describePlace(place)}</span>
-              </div>
-              <button className="ghost" onClick={() => setChanging(true)}>Change district</button>
-            </div>
-
-            {!isPilotPlace(place) && (
+            {place && !isPilotPlace(place) && (
               <p className="notice" data-testid="not-checked">
                 Kurima's planting rule has not been checked for {place.country || 'this country'} yet. The weather is
                 right, but treat the plant-or-wait answer as a rough guide and follow your own extension officer.
               </p>
             )}
 
-            <Nav tab={tab} onChange={setTab} />
+            {section?.status === 'soon' && <SoonScreen section={section} />}
+            {tab === 'about' && <AboutScreen />}
 
-            {tab === 'today' && (
+            {place && tab === 'today' && (
               <TodayScreen
                 weather={weather}
                 climate={climate}
@@ -121,19 +136,29 @@ export default function App() {
                 rule={rule}
                 units={units}
                 now={now}
+                crop={crop}
+                plantedOn={plantedOn}
               />
             )}
-            {tab === 'season' && (
+            {place && tab === 'season' && (
               <SeasonScreen
                 climate={climate}
                 seasonal={seasonal}
+                seasonRain={seasonRain}
                 outlookMonths={outlookMonths}
                 units={units}
                 now={now}
               />
             )}
             {tab === 'settings' && (
-              <SettingsScreen rule={rule} units={units} onRuleChange={setRule} onUnitsChange={setUnits} />
+              <SettingsScreen
+                rule={rule}
+                units={units}
+                theme={theme}
+                onRuleChange={setRule}
+                onUnitsChange={setUnits}
+                onThemeChange={setTheme}
+              />
             )}
           </>
         )}

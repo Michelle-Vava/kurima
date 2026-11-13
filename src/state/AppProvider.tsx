@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { applyTheme } from '../lib/themes'
 import { AppContext, type AppState } from './appContext'
 import { readSettings, rememberPlace, writeSettings, type Settings } from './settings'
 
@@ -10,6 +11,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     writeSettings(settings)
   }, [settings])
 
+  useEffect(() => {
+    applyTheme(settings.theme)
+  }, [settings.theme])
+
   const value = useMemo<AppState>(
     () => ({
       ...settings,
@@ -17,6 +22,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setSettings((s) => ({ ...s, place, recent: place ? rememberPlace(s.recent, place) : s.recent })),
       setUnits: (units) => setSettings((s) => ({ ...s, units })),
       setRule: (rule) => setSettings((s) => ({ ...s, rule })),
+      setCrop: (crop) => setSettings((s) => ({ ...s, crop })),
+      setPlantedOn: (plantedOn) => setSettings((s) => ({ ...s, plantedOn })),
+      setTheme: (theme) => setSettings((s) => ({ ...s, theme })),
     }),
     [settings],
   )

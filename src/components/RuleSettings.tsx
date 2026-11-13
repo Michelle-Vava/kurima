@@ -20,8 +20,8 @@ export function RuleSettings({ rule, units, onChange }: Props) {
   const wetValue = inches ? Math.round(convertRain(rule.wetMm, 'in') * 100) / 100 : rule.wetMm
 
   return (
-    <section className="card rules" data-testid="rule-settings">
-      <h3>Local planting rule {isDefault ? '(default)' : '(custom)'}</h3>
+    <div className="rules" data-testid="rule-settings">
+      <p className="eyebrow">{isDefault ? 'Using the default rule' : 'Using a custom rule'}</p>
       <p className="fine">
         Many ministries publish their own onset rule. Zimbabwe, for example, advises at least 20 mm over 3 days or
         25 mm in a week. Match these to your extension officer's advice.
@@ -68,6 +68,6 @@ export function RuleSettings({ rule, units, onChange }: Props) {
       {!isDefault && (
         <button className="ghost" onClick={() => onChange(DEFAULT_RULE)}>Reset to default</button>
       )}
-    </section>
+    </div>
   )
 }

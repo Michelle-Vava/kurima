@@ -2,7 +2,7 @@
 // when the rains usually break here, and how this season compares so far.
 
 import { pastRainToDate, type Climate } from './climatePack'
-import type { DailySeries } from './climate'
+import { rainySeasonCount, type DailySeries } from './climate'
 import { addDays, dayOfSeason, onsetStats, rankAmong, seasonStart, seasonYearOf, typicalOnset, type TypicalOnset } from './season'
 
 export interface SeasonSoFar {
@@ -16,8 +16,19 @@ export interface SeasonSoFar {
   seasons: number
 }
 
+/** Why Kurima is not naming a usual onset date here. */
+export type NoTypicalReason =
+  /** Two rainy seasons a year; one date would describe neither. */
+  | 'two-seasons'
+  /** No rainy season worth the name. */
+  | 'no-season'
+  /** Too few past seasons came through the record to average. */
+  | 'too-few-seasons'
+
 export interface SeasonContext {
   typical: TypicalOnset | null
+  /** Set whenever `typical` is null, so the screen can say why. */
+  noTypical: NoTypicalReason | null
   soFar: SeasonSoFar | null
 }
 
@@ -31,8 +42,18 @@ export function seasonContext(
   archive: DailySeries | null,
   recent: [string, number][],
 ): SeasonContext {
+  // A single onset date assumes a single rainy season. Where there are two,
+  // the median of both is a date in the dry gap between them — confident,
+  // specific and wrong. Judging onset per season is Roadmap item 7; until
+  // then the honest answer here is nothing.
+  const seasons = rainySeasonCount(climate.normals)
   const stats = onsetStats(climate.onsetDoys, climate.startMonth)
-  const typical = stats ? typicalOnset(stats, today) : null
+  let typical: TypicalOnset | null = null
+  let noTypical: NoTypicalReason | null = null
+  if (seasons === 0) noTypical = 'no-season'
+  else if (seasons > 1) noTypical = 'two-seasons'
+  else if (!stats) noTypical = 'too-few-seasons'
+  else typical = typicalOnset(stats, today)
 
   let soFar: SeasonSoFar | null = null
   const from = seasonStart(seasonYearOf(today, climate.startMonth), climate.startMonth)
@@ -61,5 +82,5 @@ export function seasonContext(
       soFar = { from, through, mm: Math.round(mm * 10) / 10, rank, seasons: past.totals.length }
     }
   }
-  return { typical, soFar }
+  return { typical, noTypical, soFar }
 }

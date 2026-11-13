@@ -7,7 +7,8 @@
 // a pack can never disagree with the live path.
 
 import { monthlyNormals, seasonTotalsByYear, type DailySeries } from './climate'
-import { dayOfSeason, onsetDates, rainToDateByYear, seasonStartMonth } from './season'
+import { dayOfSeason, rainToDateByYear, scanOnsets, seasonStartMonth } from './season'
+import { densify } from './series'
 
 /** Rain-to-date is kept every 5 days, for 240 days from the start of the season. */
 export const TO_DATE_STEP_DAYS = 5
@@ -26,6 +27,43 @@ export interface Climate {
   onsetDoys: number[]
   /** toDate[s]: each past season's rain through day s × 5. */
   toDate: number[][]
+  /**
+   * How the seasons in the record were accounted for. Optional because packs
+   * built before these existed do not carry them; read them through
+   * `seasonAudit`, which supplies sane answers for an older pack.
+   */
+  seasonsWithoutOnset?: number
+  seasonsIncomplete?: number
+}
+
+/**
+ * Where every season the record spans ended up. `withOnset + withoutOnset +
+ * incomplete` is the whole record, so a season count that looks low can be
+ * explained rather than guessed at.
+ *
+ * The three tallies are `null` together for a pack built before they were
+ * recorded: unknown, which is not zero. Rerun `scripts/build-packs.ts` to
+ * fill them in.
+ */
+export interface SeasonAudit {
+  withOnset: number
+  withoutOnset: number | null
+  incomplete: number | null
+  /** Complete seasons the record spans, or null if the pack cannot say. */
+  inRecord: number | null
+}
+
+export function seasonAudit(c: Climate): SeasonAudit {
+  const withOnset = c.onsetDoys.length
+  if (c.seasonsWithoutOnset === undefined || c.seasonsIncomplete === undefined) {
+    return { withOnset, withoutOnset: null, incomplete: null, inRecord: null }
+  }
+  return {
+    withOnset,
+    withoutOnset: c.seasonsWithoutOnset,
+    incomplete: c.seasonsIncomplete,
+    inRecord: withOnset + c.seasonsWithoutOnset + c.seasonsIncomplete,
+  }
 }
 
 export function climateFromSeries(series: DailySeries, period = '1991–2020'): Climate {
@@ -34,9 +72,22 @@ export function climateFromSeries(series: DailySeries, period = '1991–2020'): 
   const windows = Array.from({ length: 12 }, (_, i) =>
     seasonTotalsByYear(series, Array.from({ length: OUTLOOK_WINDOW }, (_, k) => ((i + k) % 12) + 1)),
   )
-  const onsetDoys = onsetDates(series, startMonth).map((d) => dayOfSeason(d.date, startMonth))
-  const toDate = Array.from({ length: TO_DATE_STEPS }, (_, s) => rainToDateByYear(series, startMonth, s * TO_DATE_STEP_DAYS))
-  return { period, normals, startMonth, windows, onsetDoys, toDate }
+  // Thirty years is around 11,000 days: lay it on the calendar grid once and
+  // reuse it, rather than once for the onsets and 48 times more below.
+  const dense = densify(series)
+  const scan = scanOnsets(dense, startMonth)
+  const onsetDoys = scan.dates.map((d) => dayOfSeason(d.date, startMonth))
+  const toDate = Array.from({ length: TO_DATE_STEPS }, (_, s) => rainToDateByYear(dense, startMonth, s * TO_DATE_STEP_DAYS))
+  return {
+    period,
+    normals,
+    startMonth,
+    windows,
+    onsetDoys,
+    toDate,
+    seasonsWithoutOnset: scan.withoutOnset,
+    seasonsIncomplete: scan.incomplete,
+  }
 }
 
 /** Past years' totals for the 3-month window that starts with `months[0]`. */

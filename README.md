@@ -26,9 +26,11 @@ Kurima turns free satellite and weather-model data into plain guidance for one d
 
 **Where it's checked:** the planting rule is being validated for eight Zimbabwean districts first — Bindura, Chinhoyi, Marondera, Harare, Mutare, Gweru, Masvingo and Gwanda, spanning the wetter north-east maize belt to the drier south-west. Search still reaches any town in Africa, and anywhere outside Zimbabwe is clearly marked as not yet checked.
 
-**Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. Three documents: this one is how to run it; [BUILD-ORDER.md](BUILD-ORDER.md) is what comes next,
-why, and how we judge it; [ROADMAP.md](ROADMAP.md) is the whole ambition. New to the farming
-ideas? [docs/how-it-works.md](docs/how-it-works.md) explains them with charts from real data.
+**Where it's tested:** everywhere else, deliberately. The season logic is run against four rainfall regimes in unit and end-to-end tests — Zimbabwe, the Sahel, East Africa's two rainy seasons, and somewhere with no rainy season at all — so that an assumption only Zimbabwe makes true is found now rather than when a second country is promised. Testing somewhere is not the same as advising there, and the app says so on screen.
+
+**Design in progress:** three candidate Today screens are live in the app at **`/#design`**, driven by the real signal code and the real climate packs rather than drawn.
+
+**Status:** early prototype (installable PWA). The signal and climate maths have unit tests, the main farmer flows have end-to-end tests with the weather service faked, and CI runs both. The first milestone narrows to rain-fed maize in selected Zimbabwean districts; the season outlook is not yet calibrated. New to the farming ideas? [docs/how-it-works.md](docs/how-it-works.md) explains them with charts from real data.
 
 ---
 
@@ -42,8 +44,7 @@ By default Kurima treats the rains as started when **20 mm falls within 3 days**
 
 **How good is the advice?** Better than nothing and not yet good enough to rely on. Replayed
 over 116 real onset events, the rule blocks 28 of 38 crop-killing starts and warns about 7 more;
-10 still get a plain "plant". What is and is not checked is in
-[BUILD-ORDER.md](BUILD-ORDER.md#how-we-judge-it); `npm run explain` prints the scorecard.
+10 still get a plain "plant". `npm run explain` prints the scorecard.
 
 Kurima says **"Not enough data"** rather than guessing when the forecast is shorter than the dry spell it checks for, and it hides the recommendation when the cached forecast is two or more days old. Today's rain counts as forecast, not as rain already fallen, because the day isn't over. Past days are modelled estimates from archived forecasts, not rain-gauge readings, and are labelled as such.
 
@@ -60,7 +61,7 @@ Kurima says **"Not enough data"** rather than guessing when the forecast is shor
 | Tests | Vitest (unit, property and backtest) and Playwright (end-to-end, with Open-Meteo faked) |
 | Units | Rain in mm or inches, temperature in °C or °F, chosen on the device |
 | CI | GitHub Actions: type-check, lint, unit tests, build, Playwright |
-| Data | [Open-Meteo](https://open-meteo.com/) forecast, historical (ERA5), seasonal (ECMWF) and geocoding APIs |
+| Data | [Open-Meteo](https://open-meteo.com/) forecast, historical (ERA5), seasonal (ECMWF) and geocoding APIs; a local ERA5 folder distilled by `npx tsx scripts/build-data.ts` into the bundled climate packs, simulator series and test slices ([data/README.md](data/README.md)) |
 
 ## Project structure
 
@@ -71,6 +72,7 @@ src/
 │   ├── climate.ts      # Monthly normals, complete-season totals, tercile outlook, dry-season check
 │   ├── water.ts        # Rain against what the sun takes back
 │   ├── season.ts       # When the rains usually break; this season vs past ones
+│   ├── series.ts       # Daily records on a calendar grid: a missing day is unknown, not dry
 │   ├── climatePack.ts  # Thirty years of history, derived once; packs/ holds the pilot districts
 │   ├── agronomy.ts     # Every threshold, with its reasoning, all provisional
 │   ├── freshness.ts    # Age of a cached forecast and when it is too old to use

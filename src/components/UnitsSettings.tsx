@@ -16,8 +16,7 @@ const TEMP: { value: TempUnit; label: string }[] = [
 
 export function UnitsSettings({ units, onChange }: Props) {
   return (
-    <section className="card" data-testid="units">
-      <h3>Your units</h3>
+    <div className="units" data-testid="units">
       <p className="sub">Kurima converts every screen. The choice stays on this device.</p>
       <div className="rule-grid">
         <label>
@@ -36,6 +35,6 @@ export function UnitsSettings({ units, onChange }: Props) {
       <p className="fine">
         Weight, area and currency arrive with the soil and market screens, when there is a yield or a price to show.
       </p>
-    </section>
+    </div>
   )
 }

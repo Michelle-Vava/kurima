@@ -16,9 +16,11 @@
     "e2e": "node scripts/run-e2e.mjs",
     "e2e:ui": "node scripts/run-e2e.mjs --ui",
     "screenshots": "node scripts/screenshots.mjs",
+    "data": "tsx scripts/build-data.ts",
     "explain": "EXPLAIN=1 vitest run backtest"
   },
   "dependencies": {
+    "lucide-react": "^1.70.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },

@@ -1,6 +1,10 @@
-// Build the climate packs for the pilot districts.
+// Build the climate packs for the pilot districts, by fetching.
 //
 //   npx tsx scripts/build-packs.ts
+//
+// Prefer `npx tsx scripts/build-data.ts` when the local ERA5 folder is
+// present: same packs, no network, plus the simulator series and test
+// slices. This script remains the path for a machine without the folder.
 //
 // Fetches 1991–2020 daily rain for each district from the Open-Meteo archive
 // (ERA5, CC BY 4.0) and runs it through the same climateFromSeries the app
