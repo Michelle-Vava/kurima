@@ -1,5 +1,8 @@
 # Kurima Roadmap
 
+> **Old roadmap, kept for reference only. Don't build from this file.**
+> The current plan is [PLAN.md](PLAN.md) (15 Nov 2026). Its milestones are reworded and reordered from the ones below, and it says what's done, what's left and how hard each step is.
+
 > **This file is the ambition, not the order of work.** It lists everything Kurima should
 > eventually do, grouped by subject. For what is being built next and why, see
 > [BUILD-ORDER.md](BUILD-ORDER.md), which deliberately cuts across these milestones.

@@ -1,0 +1,232 @@
+<!doctype html>
+<!-- Design mockups for plan step 1.3 (Today). Not app code.
+     Open with ?v=a|b|c and ?w=desktop|phone. Numbers are Harare on 15 Nov 2026, from the live app. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kurima · Today mockups</title>
+<style>
+:root{--bg:#f4f2ec;--surface:#fffefb;--surface-2:#eceade;--ink:#1b2a20;--muted:#63705f;--line:#ddd9cc;--leaf:#2f7d4f;--leaf-soft:#2f7d4f16;--deep:#163524;--maize:#b8860f;--maize-soft:#b8860f18;--dry:#b24420;--dry-soft:#b2442014;--sky:#2b6ca3;--sky-soft:#2b6ca314;--forecast:#8ab4dc;--radius:14px;--shadow:0 1px 2px #1b2a200a,0 4px 14px #1b2a200f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;font-size:15px;line-height:1.4}
+.wrap{max-width:1240px;margin:0 auto;padding:22px 32px 40px}
+.phone .wrap{padding:14px 14px 20px}
+svg.i{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+header{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:24px}
+.logo b{display:grid;place-items:center;width:38px;height:38px;border-radius:11px;background:var(--leaf);color:#fff}
+nav.tabs{display:flex;gap:4px;margin-left:24px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px}
+nav.tabs a{padding:8px 14px;border-radius:9px;color:var(--muted);font-weight:600;text-decoration:none}
+nav.tabs a.on{background:var(--deep);color:#fff}
+nav.tabs a.soon{opacity:.6}
+.spacer{flex:1}
+.pick{display:flex;gap:8px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:7px 12px;font-weight:600}
+.chip small{display:block;font-size:12px;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.chip .i{color:var(--leaf)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 20px}
+.label{font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.big{font-size:40px;font-weight:700;line-height:1}
+.big small{font-size:18px;font-weight:600;color:var(--muted);margin-left:4px}
+.sub{color:var(--muted);font-size:14px}
+.ok{color:var(--leaf)}.warn{color:var(--maize)}.bad{color:var(--dry)}.sky{color:var(--sky)}
+.meter{height:8px;border-radius:99px;background:var(--surface-2);position:relative;margin:10px 0 6px;overflow:visible}
+.meter i{position:absolute;inset:0 auto 0 0;border-radius:99px}
+.meter em{position:absolute;top:-5px;width:2px;height:18px;background:var(--ink)}
+.meter-key{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;padding:4px 10px;border-radius:99px}
+.pill.ok{background:var(--leaf-soft)}.pill.warn{background:var(--maize-soft)}.pill.sky{background:var(--sky-soft)}
+.summary{display:flex;align-items:center;gap:12px;border:1px dashed var(--line);background:transparent;box-shadow:none;padding:12px 16px;color:var(--muted)}
+.summary b{color:var(--ink)}
+.tag{font-size:12px;font-weight:700;padding:3px 8px;border-radius:6px;background:var(--surface-2);color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.grid{display:grid;gap:14px}
+.chart text{font-size:13px;fill:var(--muted);font-family:inherit}
+.legend{display:flex;gap:16px;font-size:13px;color:var(--muted);margin-top:8px;flex-wrap:wrap}
+.legend span::before{content:"";display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+.stat{display:flex;gap:12px;align-items:flex-start}
+.stat .ico{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;flex:none}
+.stat .v{font-size:24px;font-weight:700;line-height:1.1}
+.stat .l{font-size:14px;color:var(--muted)}
+.stat .c{font-size:13px;margin-top:2px;font-weight:600}
+.bottomnav{display:none}
+.phone .bottomnav{display:flex;position:static;background:var(--surface);border-top:1px solid var(--line);justify-content:space-around;padding:8px 0 12px}
+.bottomnav a{display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;color:var(--muted);text-decoration:none;font-weight:600}
+.bottomnav a.on{color:var(--deep)}
+.phone nav.tabs,.phone .desk{display:none}
+.phone header{flex-wrap:wrap}
+.phone .logo{font-size:21px}
+.phone .pick{width:100%}
+.phone .chip{flex:1}
+.timeline{position:relative;height:56px;margin:8px 0 4px}
+.timeline .bar{position:absolute;top:22px;left:0;right:0;height:10px;border-radius:99px;background:var(--surface-2)}
+.timeline .window{position:absolute;top:22px;height:10px;border-radius:99px;background:var(--sky);opacity:.35}
+.timeline .now{position:absolute;top:10px;width:3px;height:34px;background:var(--deep);border-radius:2px}
+.timeline .now b{position:absolute;top:-18px;left:-14px;font-size:12px;white-space:nowrap}
+.timeline .m{position:absolute;top:40px;font-size:12px;color:var(--muted);transform:translateX(-50%)}
+</style>
+</head>
+<body>
+<svg style="display:none">
+ <symbol id="rain" viewBox="0 0 24 24"><path d="M4 14.9A7 7 0 1 1 15.7 8h1.8a4.5 4.5 0 0 1 2.5 8.2"/><path d="M16 14v6M8 14v6M12 16v6"/></symbol>
+ <symbol id="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+ <symbol id="drop" viewBox="0 0 24 24"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5S5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+ <symbol id="sprout" viewBox="0 0 24 24"><path d="M7 20h10M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></symbol>
+ <symbol id="cal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></symbol>
+ <symbol id="pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+ <symbol id="down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+ <symbol id="therm" viewBox="0 0 24 24"><path d="M14 4v10.5a4 4 0 1 1-4 0V4a2 2 0 0 1 4 0z"/></symbol>
+ <symbol id="info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></symbol>
+ <symbol id="home" viewBox="0 0 24 24"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></symbol>
+ <symbol id="leaf" viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10z"/><path d="M2 21c0-3 1.9-5.4 5.2-6"/></symbol>
+ <symbol id="more" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></symbol>
+</svg>
+<div class="wrap" id="app"></div>
+<nav class="bottomnav">
+ <a class="on"><svg class="i"><use href="#home"/></svg>Today</a>
+ <a><svg class="i"><use href="#cal"/></svg>Season</a>
+ <a><svg class="i"><use href="#leaf"/></svg>Soil</a>
+ <a><svg class="i"><use href="#sprout"/></svg>Crops</a>
+ <a><svg class="i"><use href="#more"/></svg>More</a>
+</nav>
+<script>
+const q = new URLSearchParams(location.search)
+const v = q.get('v') || 'a', phone = q.get('w') === 'phone'
+if (phone) document.body.classList.add('phone')
+const ic = (id, cls = '') => `<svg class="i ${cls}"><use href="#${id}"/></svg>`
+
+// Harare, 15 Nov: 30 days of rain, past then forecast (index 16 = today)
+const rain = [0,0,0,0,0,0,0,0,6.1,4.2,13.8,0,0,0,0,0.5,0.6, 6.2,2.1,1.9,0.3,0,0,0,7.4,8.8,8.9,6.2,7.0,4.9,11.5,5.8].slice(0,30)
+const today = 16
+
+function rainChart(w, h) {
+  const max = 16, bw = w / rain.length, pad = 22
+  let s = `<svg class="chart" width="100%" viewBox="0 0 ${w} ${h + pad}" preserveAspectRatio="none">`
+  s += `<rect x="${today * bw}" y="0" width="${w - today * bw}" height="${h}" fill="#2b6ca30d"/>`
+  rain.forEach((r, i) => {
+    const bh = Math.max(r / max * (h - 6), r > 0 ? 2 : 0)
+    s += `<rect x="${i * bw + 2}" y="${h - bh}" width="${bw - 4}" height="${bh}" rx="2" fill="${i < today ? '#2b6ca3' : '#8ab4dc'}"/>`
+  })
+  s += `<line x1="0" x2="${w}" y1="${h}" y2="${h}" stroke="#ddd9cc"/>`
+  s += `<line x1="${today * bw}" x2="${today * bw}" y1="0" y2="${h}" stroke="#163524" stroke-dasharray="3 3"/>`
+  s += `<text x="${today * bw + 6}" y="14" style="fill:#163524;font-weight:700">today</text>`
+  s += `<text x="0" y="${h + 17}">31 Oct</text><text x="${today * bw}" y="${h + 17}" text-anchor="middle">15 Nov</text><text x="${w}" y="${h + 17}" text-anchor="end">29 Nov</text>`
+  return s + '</svg>'
+}
+
+function head() {
+  return `<header>
+    <div class="logo"><b>${ic('sprout')}</b>Kurima</div>
+    <nav class="tabs"><a class="on">Today</a><a>Season</a><a class="soon">Soil</a><a class="soon">Crops</a><a class="soon">Harvest</a></nav>
+    <div class="spacer desk"></div>
+    <div class="pick">
+      <div class="chip">${ic('pin')}<div><small>District</small>Harare</div>${ic('down')}</div>
+      <div class="chip">${ic('sprout')}<div><small>Crop</small>Maize</div>${ic('down')}</div>
+    </div>
+  </header>`
+}
+
+const summary = `<div class="card summary">${ic('info')}<span class="tag">Early · not yet checked</span><span><b>Wait for the forecast rain</b> before planting maize. Kurima's planting summary is still being tested against past seasons.</span></div>`
+
+function meter(value, need, color) {
+  const pct = Math.min(value / (need * 1.6), 1) * 100, mark = need / (need * 1.6) * 100
+  return `<div class="meter"><i style="width:${pct}%;background:${color}"></i><em style="left:${mark}%"></em></div>`
+}
+
+function stat(icon, color, val, label, compare, cls) {
+  return `<div class="stat"><div class="ico" style="background:${color}18;color:${color}">${ic(icon)}</div>
+    <div><div class="v">${val}</div><div class="l">${label}</div><div class="c ${cls}">${compare}</div></div></div>`
+}
+
+const stats = [
+  stat('sun', '#b8860f', '3 days', 'longest dry run in the forecast', 'Low risk · risky from 7', 'ok'),
+  stat('drop', '#2b6ca3', '+19 mm', 'rain minus what the sun dries out, 14 days', 'Wetter than usual for mid-Nov', 'ok'),
+  stat('leaf', '#2f7d4f', '31%', 'water in the soil, 9–27 cm down', 'OK for planting · aim for 25%+', 'ok'),
+  stat('therm', '#b24420', '30° / 18°', 'today, day and night', 'Soil warm enough for maize', 'ok'),
+]
+
+// ---------- A: data cards ----------
+function variantA() {
+  return head() + `
+  <div class="grid" style="grid-template-columns:${phone ? '1fr' : '1.35fr 1fr'}">
+    <div class="card">
+      <div class="label">${ic('rain', 'sky')} Rain</div>
+      <div class="grid" style="grid-template-columns:1fr 1fr;gap:24px">
+        <div><div class="big">1<small>mm</small></div><div class="sub">fallen in the last 3 days</div>${meter(1.1, 20, '#2b6ca3')}<div class="meter-key"><span>0</span><span>20 mm needed</span></div></div>
+        <div><div class="big sky">34<small>mm</small></div><div class="sub">forecast in the next 3 days</div>${meter(33.9, 20, '#8ab4dc')}<div class="meter-key"><span>0</span><span>20 mm needed</span></div></div>
+      </div>
+      <div style="margin-top:18px">${rainChart(phone ? 330 : 640, phone ? 110 : 150)}</div>
+      <div class="legend"><span style="--c:#2b6ca3">fallen (estimate, not a rain gauge)</span><span style="--c:#8ab4dc">forecast</span></div>
+    </div>
+    <div class="grid">
+      <div class="card">
+        <div class="label">${ic('cal', 'warn')} Where the season is</div>
+        <div class="big" style="font-size:30px">12 days</div>
+        <div class="sub">until rains usually start here (27 Nov)</div>
+        <div style="margin-top:12px"><span class="pill ok">${ic('rain')} 85 mm since 1 Aug · wetter than most years</span></div>
+      </div>
+      <div class="card grid" style="grid-template-columns:${phone ? '1fr' : '1fr 1fr'};gap:16px">${stats.join('')}</div>
+    </div>
+  </div>
+  <div style="margin-top:14px">${summary}</div>`
+}
+
+// ---------- B: one big chart leads ----------
+function variantB() {
+  return head() + `
+  <div class="card">
+    <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:14px">
+      <div><div class="label">${ic('rain', 'sky')} Rain, 2 weeks back and 2 weeks ahead</div>
+        <div style="display:flex;gap:28px;align-items:baseline"><div><span class="big">1</span><small class="sub"> mm fallen · last 3 days</small></div><div><span class="big sky">34</span><small class="sub"> mm coming · next 3 days</small></div></div></div>
+      <div class="spacer"></div>
+      <span class="pill sky">${ic('info')} Planting usually needs 20 mm in 3 days</span>
+    </div>
+    ${rainChart(phone ? 330 : 1160, phone ? 120 : 190)}
+    <div class="legend"><span style="--c:#2b6ca3">fallen (estimate)</span><span style="--c:#8ab4dc">forecast</span></div>
+  </div>
+  <div class="grid" style="grid-template-columns:${phone ? '1fr' : 'repeat(4,1fr)'};margin-top:14px">
+    ${stats.map(s => `<div class="card">${s}</div>`).join('')}
+  </div>
+  <div class="grid" style="grid-template-columns:${phone ? '1fr' : '2fr 1fr'};margin-top:14px">
+    <div class="card"><div class="label">${ic('cal', 'warn')} Season</div><div style="font-size:18px"><b>Rains usually start 27 Nov</b> · 12 days away. Since 1 Aug: <b>85 mm</b>, wetter than 9 in 10 past years.</div></div>
+    ${summary.replace('card summary', 'card summary" style="align-items:flex-start')}
+  </div>`
+}
+
+// ---------- C: season timeline leads ----------
+function variantC() {
+  const months = ['Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
+  const pos = d => (d / 243) * 100 // days from 1 Aug over 8 months
+  const tl = `<div class="timeline"><div class="bar"></div>
+    <div class="window" style="left:${pos(112)}%;width:${pos(19)}%"></div>
+    <div class="now" style="left:${pos(106)}%"><b>Today</b></div>
+    ${months.map((m, i) => `<span class="m" style="left:${pos(i * 30.4 + 15)}%">${m}</span>`).join('')}</div>`
+  return head() + `
+  <div class="card">
+    <div class="label">${ic('cal', 'warn')} The rainy season in Harare</div>
+    <div style="display:flex;gap:28px;flex-wrap:wrap;align-items:baseline">
+      <div><span class="big">12</span><small class="sub"> days until rains usually start (27 Nov)</small></div>
+      <span class="pill sky">Most years start between 21 Nov and 10 Dec</span>
+      <span class="pill ok">85 mm so far · wetter than most years</span>
+    </div>
+    ${tl}
+  </div>
+  <div class="grid" style="grid-template-columns:${phone ? '1fr' : '1fr 1fr'};margin-top:14px">
+    <div class="card">
+      <div class="label">${ic('rain', 'sky')} This week's rain</div>
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div><div class="big">1<small>mm</small></div><div class="sub">last 3 days</div>${meter(1.1, 20, '#2b6ca3')}</div>
+        <div><div class="big sky">34<small>mm</small></div><div class="sub">next 3 days</div>${meter(33.9, 20, '#8ab4dc')}</div>
+      </div>
+      <div class="meter-key" style="margin-top:2px"><span>line = 20 mm, what planting usually needs</span></div>
+      <div style="margin-top:12px">${rainChart(phone ? 330 : 540, 110)}</div>
+    </div>
+    <div class="card grid" style="grid-template-columns:${phone ? '1fr' : '1fr 1fr'};gap:18px">${stats.join('')}</div>
+  </div>
+  <div style="margin-top:14px">${summary}</div>`
+}
+
+document.getElementById('app').innerHTML = { a: variantA, b: variantB, c: variantC }[v]()
+</script>
+</body>
+</html>

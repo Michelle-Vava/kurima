@@ -1,5 +1,9 @@
 # Kurima build order
 
+> **Old plan, kept for reference only. Don't build from this file.**
+> The current plan is [PLAN.md](PLAN.md) (15 Nov 2026), which replaces the stages below with milestones and versions.
+> Useful background still here: "What we learned" and "How we judge it", which explain the reasoning behind the simulator in PLAN.md Milestone 2.
+
 Three documents, three jobs:
 
 | File | Job |
